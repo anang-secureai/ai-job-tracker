@@ -71,6 +71,11 @@ app.use("/assets", express.static(path.join(__dirname, "public/assets"), {
   immutable: true,
 }));
 
+app.use(express.static(path.join(__dirname, "public"), {
+  maxAge: "1h",
+  index: false,            // let explicit routes handle / and /admin
+}));
+
 // ── Public API (no auth required) ────────────────────────────────────
 
 // GET /api/reports — public-facing data (only include=true)
