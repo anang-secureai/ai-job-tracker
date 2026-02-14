@@ -47,6 +47,10 @@ app.use(helmet({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Railway (and most hosts) terminate SSL at the proxy layer.
+// Without this, Express thinks all connections are HTTP and refuses to set secure cookies.
+app.set("trust proxy", 1);
+
 app.use(session({
   store: new PgSession({ pool: db.pool, tableName: "session" }),
   secret: SESSION_SECRET,
@@ -191,6 +195,22 @@ app.get("/admin", (req, res) => {
 async function start() {
   try {
     await db.migrate();
+
+    // Auto-seed on first boot if database is empty
+    const { rows } = await db.pool.query("SELECT COUNT(*) AS cnt FROM reports");
+    if (parseInt(rows[0].cnt) === 0) {
+      console.log("[server] Empty database detected — importing starter data...");
+      try {
+        const seed = require("./seed-data");
+        for (const row of seed) {
+          await db.createReport(row);
+        }
+        console.log(`[server] Seeded ${seed.length} reports`);
+      } catch (e) {
+        console.log("[server] No seed-data.js found or seed failed, starting empty:", e.message);
+      }
+    }
+
     app.listen(PORT, () => {
       console.log(`[server] Running on port ${PORT}`);
       console.log(`[server] Dashboard: http://localhost:${PORT}`);
