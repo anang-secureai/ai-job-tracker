@@ -28,7 +28,7 @@
 <div class="admin-app" id="app">
   <nav class="topbar">
     <div class="topbar-left">
-      <div class="topbar-shield logo-mask"
+      <div class="topbar-shield logo-mask-dark"
            style="--mask-img:url(/assets/the-alliance-shield-white-256.png); height:1.4rem; width:1.2rem"
            aria-hidden="true"></div>
       <h1>AI Job Tracker Admin</h1>
@@ -40,7 +40,7 @@
   </nav>
 
   <div class="container">
-    <div class="stats-bar" id="statsBar">
+    <div class="admin-stats-bar" id="statsBar">
       <div class="stat-chip"><strong id="statTotal">0</strong> total reports</div>
       <div class="stat-chip"><strong id="statPublished">0</strong> published</div>
       <div class="stat-chip"><strong id="statDraft">0</strong> drafts</div>
@@ -54,8 +54,8 @@
       <div style="overflow-x:auto">
         <table class="admin-table">
           <thead><tr>
-            <th>Published</th><th>Date</th><th>Company</th><th>Jobs Lost</th>
-            <th>Attribution</th><th>Industry</th><th>Source</th><th style="text-align:right">Actions</th>
+            <th scope="col">Published</th><th scope="col">Date</th><th scope="col">Company</th><th scope="col">Jobs Lost</th>
+            <th scope="col">Attribution</th><th scope="col">Industry</th><th scope="col">Source</th><th scope="col" style="text-align:right">Actions</th>
           </tr></thead>
           <tbody id="reportsList"></tbody>
         </table>
@@ -65,7 +65,7 @@
 </div>
 
 <div class="modal-backdrop" id="modal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-labelledby="modalTitle">
     <h2 id="modalTitle">Add Report</h2>
     <form id="reportForm">
       <input type="hidden" id="fId" />
@@ -138,7 +138,7 @@ function renderTable() {
     const tagClass = attr === "explicit" ? "explicit" : attr === "blamed" ? "blamed" : "mixed";
     const srcDomain = r.sourceUrl ? (() => { try { return new URL(r.sourceUrl).hostname.replace("www.", ""); } catch { return ""; } })() : "";
     return `<tr data-id="${r.id}">
-      <td><button class="toggle-track ${r.include ? "on" : ""}" onclick="togglePub(${r.id})" title="${r.include ? "Published" : "Draft"}"><span class="toggle-knob"></span></button></td>
+      <td><button class="toggle-track ${r.include ? "on" : ""}" onclick="togglePub(${r.id})" aria-label="${r.include ? "Published, click to unpublish" : "Draft, click to publish"}"><span class="toggle-knob"></span></button></td>
       <td style="white-space:nowrap">${dateFmt(r.date)}</td>
       <td><strong>${esc(r.company)}</strong></td>
       <td>${r.estimate ? "~" : ""}${numFmt.format(r.jobsLost)}</td>
@@ -146,8 +146,8 @@ function renderTable() {
       <td>${esc(r.industry || "")}</td>
       <td>${r.sourceUrl ? `<a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener" class="source-link">${esc(r.sourceLabel || srcDomain || "link")}</a>` : esc(r.sourceLabel || "—")}</td>
       <td style="text-align:right;white-space:nowrap">
-        <button class="btn btn-sm btn-icon" onclick="editReport(${r.id})" title="Edit">✎</button>
-        <button class="btn btn-sm btn-icon btn-danger" onclick="deleteReport(${r.id})" title="Delete">✕</button>
+        <button class="btn btn-sm btn-icon" onclick="editReport(${r.id})" aria-label="Edit ${esc(r.company)}">✎</button>
+        <button class="btn btn-sm btn-icon btn-danger" onclick="deleteReport(${r.id})" aria-label="Delete ${esc(r.company)}">✕</button>
       </td></tr>`;
   }).join("");
 }
