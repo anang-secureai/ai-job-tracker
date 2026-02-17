@@ -13,21 +13,25 @@ const ER_BASE = "https://eventregistry.org/api/v1";
 const API_KEY = () => process.env.EVENT_REGISTRY_API_KEY;
 
 // ── Search keywords ──────────────────────────────────────────────────
-// Two keyword groups combined with AND logic:
-//   Group A (layoff signal): must match at least one
-//   Group B (AI signal): must match at least one
+// Compound phrases that naturally combine layoff + AI signals.
+// Using OR logic — each phrase is specific enough on its own.
 // This produces high-recall candidates; your team filters for precision.
 
-const LAYOFF_KEYWORDS = [
-  "layoff", "layoffs", "job cuts", "job losses",
-  "workforce reduction", "eliminated positions",
-  "downsizing", "restructuring jobs", "mass firing",
-];
-
-const AI_KEYWORDS = [
-  "artificial intelligence", "AI replacement",
-  "AI automation", "machine learning", "generative AI",
-  "ChatGPT", "AI-driven", "automated by AI",
+const SEARCH_PHRASES = [
+  "AI layoffs",
+  "AI job cuts",
+  "AI job losses",
+  "artificial intelligence layoffs",
+  "artificial intelligence job cuts",
+  "replaced by AI",
+  "replaced by artificial intelligence",
+  "AI workforce reduction",
+  "automation layoffs",
+  "AI restructuring jobs",
+  "ChatGPT replacing jobs",
+  "generative AI job cuts",
+  "AI eliminated positions",
+  "AI downsizing",
 ];
 
 // High-quality sources to prioritize (Event Registry source URIs)
@@ -82,11 +86,11 @@ async function fetchCandidates(daysBack = 3) {
   let added = 0, skipped = 0, errors = 0;
 
   try {
-    // Build keyword query: (any layoff term) AND (any AI term)
+    // Build keyword query: any compound phrase matches
     const body = {
       action: "getArticles",
-      keyword: LAYOFF_KEYWORDS.concat(AI_KEYWORDS),
-      keywordOper: "and",
+      keyword: SEARCH_PHRASES,
+      keywordOper: "or",
       keywordSearchMode: "simple",
       lang: "eng",
       dateStart,
