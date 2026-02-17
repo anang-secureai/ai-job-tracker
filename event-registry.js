@@ -105,7 +105,22 @@ async function fetchCandidates(daysBack = 3) {
       articleBodyLen: 300,
     };
 
+    console.log("[event-registry] Query:", dateStart, "to", dateEnd, "| keywords:", SEARCH_PHRASES.length, "phrases");
+
     const data = await erFetch("/article/getArticles", body);
+    
+    // Debug: log response structure
+    console.log("[event-registry] Response keys:", Object.keys(data || {}));
+    if (data?.articles) {
+      console.log("[event-registry] Articles keys:", Object.keys(data.articles));
+      console.log("[event-registry] Results count:", data.articles?.results?.length ?? "no results array");
+      console.log("[event-registry] Total results:", data.articles?.totalResults ?? "unknown");
+    } else if (data?.error) {
+      console.log("[event-registry] API error:", data.error);
+    } else {
+      console.log("[event-registry] Raw response (first 500 chars):", JSON.stringify(data).slice(0, 500));
+    }
+
     const articles = data?.articles?.results || [];
 
     console.log(`[event-registry] Fetched ${articles.length} articles for ${dateStart} to ${dateEnd}`);
