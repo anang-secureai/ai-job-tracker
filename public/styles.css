@@ -504,7 +504,7 @@ tbody tr.major .cell-jobs { font-size: 0.98rem; font-weight: 800; color: var(--g
   padding: 0.85rem 1rem; border-bottom: 1px solid var(--border);
 }
 .table-header h2 { font-size: 0.95rem; font-weight: 700; color: var(--seaweed); }
-.admin-table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+.admin-table { width: 100%; border-collapse: collapse; min-width: 700px; }
 .admin-table thead th {
   text-align: left; padding: 0.6rem 0.7rem; font-size: 0.68rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim);
