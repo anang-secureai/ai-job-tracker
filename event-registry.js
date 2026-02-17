@@ -82,7 +82,7 @@ async function fetchCandidates(daysBack = 3) {
       action: "getArticles",
       keyword: SEARCH_PHRASES,
       keywordOper: "or",
-      keywordSearchMode: "simple",
+      keywordSearchMode: "exact",
       lang: "eng",
       dateStart,
       dateEnd,
