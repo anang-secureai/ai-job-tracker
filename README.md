@@ -1,78 +1,156 @@
 # AI Job Loss Tracker
 
-A public-interest dashboard tracking AI-linked job losses worldwide, maintained by [The Alliance for Secure AI](https://secureainow.org).
+A public-interest dashboard tracking AI-linked job losses, maintained by [The Alliance for Secure AI](https://secureainow.org).
 
 **Live dashboard:** [ai-job-tracker.up.railway.app](https://ai-job-tracker.up.railway.app)
 
----
-
 ## About
 
-This project tracks newly reported layoffs where artificial intelligence is either explicitly cited by the company or credibly identified by reporting as a material factor in the workforce reduction. The reporting window begins January 1, 2025.
+The AI Job Loss Tracker is a curated dataset of workforce reductions where artificial intelligence is either explicitly cited or credibly identified as a material factor. It serves as a resource for policymakers, journalists, and researchers tracking the labor market impact of AI adoption.
 
-The tracker is designed for policymakers, journalists, and researchers who need a regularly updated, methodologically transparent source for AI-driven labor displacement data. Each entry includes the company, headcount, AI attribution classification, source citation, and contextual metrics including workforce percentage and post-announcement stock movement.
+The tracker includes only first-time announcements meeting strict editorial criteria. Restated totals, duplicate announcements, and layoffs attributed solely to non-AI factors are excluded. Each entry is classified by attribution type:
 
-### Counting methodology
-
-**Included:** First-time layoff announcements where AI was a material factor — either explicitly cited by the company (`EXPLICIT`), identified by credible reporting as a primary driver (`BLAMED`), or listed alongside other factors (`MIXED`).
-
-**Excluded:** Restated totals, duplicate announcements of previously counted layoffs, and workforce reductions attributed solely to non-AI factors.
-
-Stock figures show the change from announcement-day close to most recent close and do not imply the layoffs caused the stock movement.
+| Classification | Meaning |
+|---|---|
+| **EXPLICIT** | Company publicly cited AI as a reason in an official statement, filing, or on-the-record comment |
+| **BLAMED** | At least one credible outlet (AP, Reuters, major business press) identified AI as a primary driver |
+| **MIXED** | AI cited alongside other material factors (restructuring, market conditions) |
 
 ## Architecture
 
-| Component | Technology |
-|-----------|-----------|
-| Server | Node.js, Express |
-| Database | PostgreSQL |
-| Frontend | HTML, CSS, vanilla JS |
-| Hosting | Railway |
-
 ```
-├── server.js            # Express routes, auth, API
-├── db.js                # PostgreSQL queries
-├── seed.js              # Initial dataset
-├── package.json
-├── public/
-│   ├── index.html       # Public dashboard
-│   ├── admin.html       # Admin panel (session-authenticated)
-│   ├── styles.css       # Shared styles
-│   └── assets/          # Logos, favicons
+┌──────────────────────────────────────────────────┐
+│               Railway (Node.js)                  │
+│                                                  │
+│   Express.js server                              │
+│   ├── GET /              → public dashboard      │
+│   ├── GET /admin         → admin panel           │
+│   ├── GET /api/reports   → public JSON API       │
+│   ├── /api/admin/*       → report CRUD (auth)    │
+│   └── /api/admin/candidates/* → review pipeline  │
+│                                                  │
+│   PostgreSQL                                     │
+│   ├── reports table      → curated dataset       │
+│   ├── candidates table   → review queue          │
+│   └── session table      → auth sessions         │
+│                                                  │
+│   Event Registry (external)                      │
+│   └── Daily scan → candidate articles            │
+└──────────────────────────────────────────────────┘
 ```
 
-No build step, no framework, no client-side dependencies. The dashboard is a single HTML page consuming a JSON API. The admin panel is a separate page with cookie-based session authentication.
+## Candidate Pipeline
 
-## API
+The tracker integrates with [Event Registry](https://eventregistry.org) (newsapi.ai) to surface candidate articles for editorial review. The pipeline:
 
-The public endpoint requires no authentication:
+1. **Scan** — A daily cron job (08:00 UTC) queries Event Registry for English-language news articles matching AI + layoff keyword phrases
+2. **Queue** — New articles are deduplicated and stored as candidates with PENDING status
+3. **Review** — Editors review candidates in the admin panel, reading the source article and determining relevance
+4. **Approve or reject** — Approved candidates become draft reports with source URL pre-filled; rejected candidates are archived and auto-cleaned after 60 days
+5. **Publish** — Editors add headcount, attribution classification, and company details, then toggle the report to Published
+
+Manual scans can also be triggered from the admin panel at any time.
+
+## Public API
 
 ```
 GET /api/reports
 ```
 
-Returns all published reports as JSON. Responses are cached for 5 minutes.
+Returns all published reports as JSON. No authentication required. Cached for 5 minutes.
 
-## Data sources
+```json
+{
+  "ok": true,
+  "count": 14,
+  "reports": [
+    {
+      "id": 1,
+      "date": "2025-01-22",
+      "company": "Microsoft",
+      "industry": "Technology",
+      "jobsLost": 3222,
+      "lossType": "NEW",
+      "aiAttribution": "MIXED",
+      "sourceLabel": "CNBC",
+      "sourceUrl": "https://...",
+      "workforce": 228000,
+      "estimate": false
+    }
+  ]
+}
+```
 
-Reports are sourced from major wire services and business publications including AP, Reuters, CNBC, Bloomberg, and sector-specific outlets. Each report links to its primary source.
+## File Structure
+
+```
+ai-job-tracker/
+├── server.js              # Express app, routes, cron scheduling
+├── db.js                  # PostgreSQL connection, migrations, query helpers
+├── event-registry.js      # Event Registry API integration
+├── seed.js                # Starter data importer
+├── seed-data.js           # Initial dataset
+├── package.json
+├── Procfile
+└── public/
+    ├── index.html         # Public dashboard (WCAG 2.1 AA compliant)
+    ├── admin.html         # Admin panel with Reports + Candidates tabs
+    ├── styles.css         # Light theme matching secureainow.org
+    ├── favicon.ico
+    ├── favicon-32.png
+    ├── apple-touch-icon.png
+    ├── icon-192.png
+    ├── icon-512.png
+    └── assets/
+        ├── the-alliance-logo-white-1600.png
+        └── the-alliance-shield-white-256.png
+```
 
 ## Deployment
 
-Runs as a single service on Railway with a managed PostgreSQL instance. Requires three environment variables:
+Hosted on [Railway](https://railway.app) with auto-deploy from this repository.
 
-| Variable | Purpose |
-|----------|---------|
-| `ADMIN_PASSWORD` | Shared credential for the admin panel |
-| `SESSION_SECRET` | Session signing key |
-| `DATABASE_URL` | PostgreSQL connection string (set automatically by Railway) |
+### Environment Variables
 
-## Contributing data
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string (auto-set by Railway) |
+| `ADMIN_PASSWORD` | Yes | Shared password for admin panel access |
+| `SESSION_SECRET` | Yes | Random string for session signing |
+| `NODE_ENV` | Yes | Set to `production` |
+| `EVENT_REGISTRY_API_KEY` | No | API key from [newsapi.ai](https://newsapi.ai). Enables candidate scanning. Without it, the tracker works normally but candidates must be entered manually. |
 
-If you've identified an AI-linked layoff that isn't reflected in the tracker, please open an issue with the company name, approximate headcount, date, and a link to a credible source.
+### Custom Domain
+
+To serve from a subdomain (e.g., `tracker.secureainow.org`):
+
+1. Add a CNAME record pointing the subdomain to the Railway deployment
+2. Configure the custom domain in Railway → Settings → Networking
+3. SSL is automatic
+
+## Data Sources
+
+Reports are sourced from AP, Reuters, CNBC, Bloomberg, the Wall Street Journal, the New York Times, the Washington Post, the Financial Times, TechCrunch, The Verge, Ars Technica, Wired, the BBC, and the Guardian, among others. Candidate articles are surfaced via Event Registry and verified by editors before publication.
+
+## Accessibility
+
+The public dashboard meets WCAG 2.1 AA standards:
+
+- All interactive elements have visible focus indicators
+- Table headers use `scope` attributes
+- Sections use ARIA landmarks and labels
+- Counter uses `aria-live` for screen reader announcements
+- Animations respect `prefers-reduced-motion`
+- Print stylesheet included for physical distribution
+
+## Citation
+
+> The Alliance for Secure AI, *AI Job Loss Tracker*, [date accessed]. Available at [ai-job-tracker.up.railway.app](https://ai-job-tracker.up.railway.app).
+
+## Contributing
+
+To report an error or suggest a source, email [contact@secureainow.org](mailto:contact@secureainow.org).
 
 ## License
 
-© 2025 The Alliance for Secure AI. All rights reserved.
-
-Data may be cited with attribution. For media inquiries, contact [The Alliance for Secure AI](https://secureainow.org).
+Data and analysis © The Alliance for Secure AI. Source code available for reference; contact the organization for licensing inquiries.
