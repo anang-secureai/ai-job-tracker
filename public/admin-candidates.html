@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Candidates — Admin</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--seaweed:#2c4a2a;--green:#3d6b35;--green-bg:#f4f7f2;--border:#d6d6c8;--text:#1a1a1a;--text-mid:#4a4a40;--text-dim:#8a8a7a;--bg:#fff;--shadow-sm:0 1px 3px rgba(0,0,0,.06)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Libre Franklin',system-ui,sans-serif;background:#f5f4ef;color:var(--text);min-height:100vh}
+    .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--seaweed)}
+    .login-box{background:var(--bg);padding:2rem;border-radius:.75rem;width:min(380px,90vw);text-align:center}
+    .login-box h1{font-size:1.1rem;margin-bottom:1rem;color:var(--seaweed)}
+    .login-box input{width:100%;padding:.6rem .8rem;border:1px solid var(--border);border-radius:.4rem;font:inherit;font-size:.9rem;margin-bottom:.75rem}
+    .login-error{color:#b33;font-size:.82rem;margin-top:.5rem;min-height:1.2em}
+    .topbar{background:var(--seaweed);color:#fff;padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar h1{font-size:.95rem;font-weight:700}
+    .topbar-left{display:flex;align-items:center;gap:.6rem}
+    .topbar-right{display:flex;align-items:center;gap:.5rem}
+    .topbar-nav{display:flex;gap:0;margin-left:1.5rem}
+    .topbar-nav a{padding:.35rem .85rem;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.6);text-decoration:none;border-radius:.35rem;transition:all .15s}
+    .topbar-nav a:hover{color:#fff;background:rgba(255,255,255,.1)}
+    .topbar-nav a.active{color:#fff;background:rgba(255,255,255,.18)}
+    .admin-app{display:none}.admin-app.active{display:block}
+    .container{width:min(900px,96vw);margin:1.5rem auto;padding:0 .5rem}
+    .btn{display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .9rem;border:1px solid var(--border);border-radius:.4rem;background:var(--bg);font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--text-mid);transition:all .15s;text-decoration:none}
+    .btn:hover{border-color:var(--green);color:var(--green)}
+    .btn-primary{background:var(--seaweed);color:#fff;border-color:var(--seaweed)}
+    .btn-primary:hover{background:var(--green)}
+    .btn-danger{color:#b33;border-color:#daa}.btn-danger:hover{background:#fef0f0;color:#900}
+    .btn-sm{padding:.25rem .55rem;font-size:.75rem}
+    .toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap}
+    .toolbar select{padding:.4rem .6rem;border-radius:.4rem;border:1px solid var(--border);font:inherit;font-size:.82rem}
+    .scan-status{font-size:.82rem;color:var(--text-dim)}
+    .filters{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+    .fbtn{padding:.3rem .7rem;border-radius:999px;border:1px solid var(--border);background:var(--bg);font:inherit;font-size:.76rem;font-weight:600;cursor:pointer;color:var(--text-mid);transition:all .15s}
+    .fbtn:hover{border-color:var(--green)}.fbtn.on{background:var(--seaweed);color:#fff;border-color:var(--seaweed)}
+    .card{border:1px solid var(--border);border-radius:.65rem;padding:.85rem 1rem;background:var(--bg);margin-bottom:.6rem;box-shadow:var(--shadow-sm)}
+    .card.rejected{opacity:.45}.card.approved{border-left:3px solid var(--green)}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+    .card-title{font-weight:700;font-size:.92rem;color:var(--seaweed);margin:0}
+    .card-meta{font-size:.72rem;color:var(--text-dim);margin:.15rem 0 0}
+    .card-meta a{color:var(--green);font-weight:600;text-decoration:none}.card-meta a:hover{text-decoration:underline}
+    .card-summary{font-size:.82rem;color:var(--text-mid);margin:.4rem 0;line-height:1.45}
+    .card-actions{display:flex;gap:.5rem;margin-top:.4rem}
+    .tag{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .45rem;border-radius:999px;flex-shrink:0}
+    .tag.pending{background:#fef0d0;color:#8a6000}
+    .tag.approved{background:#e6f4e6;color:#1a5c1a}
+    .tag.rejected{background:#f0f0f0;color:#888}
+    .empty{text-align:center;padding:3rem 1rem;color:var(--text-dim);font-size:.88rem}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+    .modal-backdrop.open{display:flex}
+    .modal{background:var(--bg);border-radius:.75rem;padding:1.5rem;width:min(550px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+    .modal h2{font-size:1.05rem;font-weight:800;color:var(--seaweed);margin-bottom:.5rem}
+    .modal-summary{font-size:.84rem;color:var(--text-mid);margin-bottom:1rem;line-height:1.5}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem .85rem}
+    .form-group label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);margin-bottom:.2rem}
+    .form-group input,.form-group select{width:100%;padding:.45rem .6rem;border:1px solid var(--border);border-radius:.4rem;font:inherit;font-size:.85rem}
+    .form-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border)}
+    .toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:300;display:flex;flex-direction:column;gap:.4rem}
+    .toast{padding:.6rem 1rem;border-radius:.5rem;background:var(--seaweed);color:#fff;font-size:.84rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:opacity .3s}
+    .toast.error{background:#b33}
+  </style>
+</head>
+<body>
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>AI Job Tracker — Admin</h1>
+    <form id="loginForm"><input type="password" id="loginPassword" placeholder="Enter admin password" autocomplete="current-password" /><button type="submit" class="btn btn-primary" style="width:100%">Sign in</button></form>
+    <p class="login-error" id="loginError"></p>
+  </div>
+</div>
+<div class="admin-app" id="app">
+  <nav class="topbar">
+    <div class="topbar-left">
+      <h1>AI Job Tracker</h1>
+      <nav class="topbar-nav">
+        <a href="/admin">Reports</a>
+        <a href="/admin/candidates" class="active">Candidates</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <a href="/" class="btn btn-sm" target="_blank" style="color:#fff;border-color:rgba(255,255,255,.3)">Dashboard ↗</a>
+      <button class="btn btn-sm" id="logoutBtn" style="color:#fff;border-color:rgba(255,255,255,.3)">Sign out</button>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="toolbar">
+      <button class="btn btn-primary" id="scanBtn">🔍 Scan for candidates</button>
+      <select id="scanDays"><option value="1">Last 24 hours</option><option value="3" selected>Last 3 days</option><option value="7">Last 7 days</option></select>
+      <span class="scan-status" id="scanStatus"></span>
+      <button class="btn btn-sm btn-danger" id="rejectAllBtn" style="margin-left:auto">Reject all pending</button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div id="list"></div>
+  </div>
+</div>
+<div class="modal-backdrop" id="approveModal">
+  <div class="modal" role="dialog">
+    <h2>Approve → Create Draft Report</h2>
+    <p class="modal-summary" id="appSummary"></p>
+    <form id="approveForm">
+      <input type="hidden" id="aId" /><input type="hidden" id="aSrcUrl" /><input type="hidden" id="aSrcLabel" />
+      <div class="form-grid">
+        <div class="form-group"><label for="aCompany">Company *</label><input type="text" id="aCompany" required placeholder="e.g. Amazon" /></div>
+        <div class="form-group"><label for="aJobs">Jobs Lost *</label><input type="number" id="aJobs" required min="1" placeholder="e.g. 14000" /></div>
+        <div class="form-group"><label for="aDate">Date</label><input type="date" id="aDate" /></div>
+        <div class="form-group"><label for="aAttr">Attribution</label><select id="aAttr"><option value="EXPLICIT">EXPLICIT</option><option value="BLAMED" selected>BLAMED</option><option value="MIXED">MIXED</option></select></div>
+        <div class="form-group"><label for="aIndustry">Industry</label><input type="text" id="aIndustry" placeholder="e.g. Technology" /></div>
+        <div class="form-group"><label for="aRegion">Region</label><select id="aRegion"><option value="US">US</option><option value="INTL">International</option><option value="GLOBAL" selected>Global</option></select></div>
+      </div>
+      <div class="form-actions"><button type="button" class="btn" id="appCancel">Cancel</button><button type="submit" class="btn btn-primary">Create Draft Report</button></div>
+    </form>
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script>
+const $=id=>document.getElementById(id);
+const dateFmt=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}):"—";
+let candidates=[];
+let filter="";
+
+/* Auth */
+async function checkAuth(){try{const r=await fetch("/api/auth/check");const d=await r.json();if(d.authenticated){showApp();return}}catch{}showLogin()}
+function showLogin(){$("loginScreen").style.display="flex";$("app").classList.remove("active")}
+function showApp(){$("loginScreen").style.display="none";$("app").classList.add("active");loadCandidates()}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginError").textContent="";try{const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("loginPassword").value})});const d=await r.json();if(d.ok)showApp();else $("loginError").textContent=d.error||"Login failed"}catch{$("loginError").textContent="Connection error"}});
+$("logoutBtn").addEventListener("click",async()=>{await fetch("/api/logout",{method:"POST"});showLogin();$("loginPassword").value=""});
+
+/* Load */
+async function loadCandidates(){
+  try{
+    const r=await fetch("/api/admin/candidates");
+    if(r.status===401){showLogin();return}
+    const d=await r.json();
+    candidates=d.candidates||[];
+    buildFilters(d.stats);
+    render();
+  }catch(e){console.error(e);toast("Failed to load",true)}
+}
+
+function buildFilters(stats){
+  const p=stats?.pending||0,a=stats?.approved||0,rj=stats?.rejected||0,tot=candidates.length;
+  $("filters").innerHTML=[
+    {s:"",label:"All ("+tot+")"},
+    {s:"PENDING",label:"Pending ("+p+")"},
+    {s:"APPROVED",label:"Approved ("+a+")"},
+    {s:"REJECTED",label:"Rejected ("+rj+")"}
+  ].map(f=>`<button class="fbtn ${filter===f.s?"on":""}" data-s="${f.s}">${f.label}</button>`).join("");
+  $("filters").querySelectorAll(".fbtn").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.s;render();$("filters").querySelectorAll(".fbtn").forEach(x=>x.classList.toggle("on",x.dataset.s===filter))}));
+}
+
+function render(){
+  const items=filter?candidates.filter(c=>c.status===filter):candidates;
+  if(!items.length){$("list").innerHTML='<div class="empty">'+(filter?"No "+filter.toLowerCase()+" candidates.":"No candidates. Click Scan to search Event Registry.")+'</div>';return}
+  $("list").innerHTML=items.map(c=>{
+    const sc=c.status.toLowerCase();
+    const pending=c.status==="PENDING";
+    return '<div class="card '+sc+'"><div class="card-top"><div><h3 class="card-title">'+esc(c.title)+'</h3><p class="card-meta">'+esc(c.sourceName)+' · '+dateFmt(c.publishedAt)+(c.sourceUrl?' · <a href="'+esc(c.sourceUrl)+'" target="_blank" rel="noopener">Read ↗</a>':'')+'</p></div><span class="tag '+sc+'">'+c.status+'</span></div>'+(c.summary?'<p class="card-summary">'+esc(c.summary)+'</p>':'')+(pending?'<div class="card-actions"><button class="btn btn-sm btn-primary" onclick="doApprove('+c.id+')">✓ Approve</button> <button class="btn btn-sm btn-danger" onclick="doReject('+c.id+')">✕ Reject</button></div>':'')+'</div>';
+  }).join("");
+}
+
+/* Reject */
+window.doReject=async function(id){
+  try{
+    const r=await fetch("/api/admin/candidates/"+id+"/reject",{method:"POST",headers:{"Content-Type":"application/json"}});
+    const d=await r.json();
+    if(d.ok){
+      const c=candidates.find(x=>x.id===id);
+      if(c)c.status="REJECTED";
+      render();
+      toast("Rejected");
+    }else{
+      console.error("Reject failed:",d);
+      toast(d.error||"Reject failed",true);
+    }
+  }catch(e){console.error("Reject error:",e);toast("Reject failed",true)}
+};
+
+/* Reject all */
+$("rejectAllBtn").addEventListener("click",async()=>{
+  const pending=candidates.filter(c=>c.status==="PENDING");
+  if(!pending.length){toast("No pending candidates");return}
+  if(!confirm("Reject all "+pending.length+" pending candidates?"))return;
+  $("rejectAllBtn").disabled=true;$("rejectAllBtn").textContent="Rejecting...";
+  let ok=0;
+  for(const c of pending){
+    try{
+      const r=await fetch("/api/admin/candidates/"+c.id+"/reject",{method:"POST",headers:{"Content-Type":"application/json"}});
+      const d=await r.json();
+      if(d.ok){c.status="REJECTED";ok++}
+    }catch{}
+  }
+  $("rejectAllBtn").disabled=false;$("rejectAllBtn").textContent="Reject all pending";
+  toast("Rejected "+ok+" candidates");
+  loadCandidates();
+});
+
+/* Scan */
+$("scanBtn").addEventListener("click",async()=>{
+  $("scanBtn").disabled=true;$("scanBtn").textContent="Scanning...";$("scanStatus").textContent="";
+  try{
+    const r=await fetch("/api/admin/candidates/fetch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({days_back:parseInt($("scanDays").value)})});
+    const d=await r.json();
+    $("scanStatus").textContent="Found "+(d.added||0)+" new, "+(d.skipped||0)+" dupes skipped.";
+    if(d.added>0)loadCandidates();
+    else if(d.message)toast(d.message,true);
+  }catch{$("scanStatus").textContent="Scan failed";toast("Scan failed",true)}
+  $("scanBtn").disabled=false;$("scanBtn").textContent="🔍 Scan for candidates";
+});
+
+/* Approve modal */
+window.doApprove=function(id){
+  const c=candidates.find(x=>x.id===id);if(!c)return;
+  $("aId").value=c.id;$("aSrcUrl").value=c.sourceUrl||"";$("aSrcLabel").value=c.sourceName||"";
+  $("appSummary").textContent=c.title;
+  $("aCompany").value="";$("aJobs").value="";$("aDate").value=c.publishedAt||"";$("aIndustry").value="";
+  $("approveModal").classList.add("open");$("aCompany").focus();
+};
+function closeApprove(){$("approveModal").classList.remove("open")}
+$("appCancel").addEventListener("click",closeApprove);
+$("approveModal").addEventListener("click",e=>{if(e.target===$("approveModal"))closeApprove()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeApprove()});
+
+$("approveForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  try{
+    const r=await fetch("/api/admin/candidates/"+$("aId").value+"/approve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company:$("aCompany").value,jobs_lost:$("aJobs").value,date:$("aDate").value,ai_attribution:$("aAttr").value,industry:$("aIndustry").value||"Unknown",region:$("aRegion").value,source_url:$("aSrcUrl").value,source_label:$("aSrcLabel").value})});
+    const d=await r.json();
+    if(d.ok){closeApprove();toast("Draft report created");loadCandidates()}
+    else toast(d.error||"Failed",true);
+  }catch{toast("Failed",true)}
+});
+
+function toast(msg,err){const t=document.createElement("div");t.className="toast"+(err?" error":"");t.textContent=msg;$("toasts").appendChild(t);setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),300)},2800)}
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+checkAuth();
+</script>
+</body>
+</html>
