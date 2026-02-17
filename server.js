@@ -268,6 +268,10 @@ app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "public/admin.html"));
 });
 
+app.get("/admin/candidates", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/admin-candidates.html"));
+});
+
 // ── Boot ─────────────────────────────────────────────────────────────
 
 async function start() {
