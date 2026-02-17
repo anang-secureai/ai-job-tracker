@@ -46,6 +46,23 @@ async function migrate() {
       CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
     `);
 
+    // Candidates table — articles flagged by Event Registry for human review
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS candidates (
+        id            SERIAL PRIMARY KEY,
+        external_id   VARCHAR(255) UNIQUE NOT NULL,
+        title         TEXT NOT NULL,
+        summary       TEXT,
+        source_name   VARCHAR(255),
+        source_url    TEXT,
+        published_at  DATE,
+        status        VARCHAR(20) DEFAULT 'PENDING',
+        report_id     INTEGER REFERENCES reports(id) ON DELETE SET NULL,
+        created_at    TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS "IDX_candidates_status" ON candidates (status);
+    `);
+
     console.log("[db] Migrations complete");
   } finally {
     client.release();
@@ -156,6 +173,75 @@ async function getStats() {
   return rows[0];
 }
 
+// ── Candidate query helpers ───────────────────────────────────────────
+
+async function getCandidates(status = null) {
+  const where = status ? "WHERE status = $1" : "";
+  const params = status ? [status.toUpperCase()] : [];
+  const { rows } = await pool.query(
+    `SELECT * FROM candidates ${where} ORDER BY published_at DESC, id DESC`,
+    params
+  );
+  return rows.map(formatCandidate);
+}
+
+async function getCandidateStats() {
+  const { rows } = await pool.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
+      COUNT(*) FILTER (WHERE status = 'APPROVED') AS approved,
+      COUNT(*) FILTER (WHERE status = 'REJECTED') AS rejected,
+      COUNT(*) AS total
+    FROM candidates
+  `);
+  return rows[0];
+}
+
+async function createCandidate(data) {
+  try {
+    await pool.query(
+      `INSERT INTO candidates (external_id, title, summary, source_name, source_url, published_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [data.external_id, data.title, data.summary || "",
+       data.source_name || "", data.source_url || "", data.published_at]
+    );
+    return "created";
+  } catch (e) {
+    if (e.code === "23505") return "exists"; // unique constraint = duplicate
+    throw e;
+  }
+}
+
+async function updateCandidateStatus(id, status, reportId = null) {
+  const { rows } = await pool.query(
+    `UPDATE candidates SET status = $1, report_id = $2 WHERE id = $3 RETURNING *`,
+    [status.toUpperCase(), reportId, id]
+  );
+  return rows[0] ? formatCandidate(rows[0]) : null;
+}
+
+async function deleteOldCandidates(daysOld = 60) {
+  const { rowCount } = await pool.query(
+    `DELETE FROM candidates WHERE status IN ('REJECTED') AND created_at < NOW() - INTERVAL '${daysOld} days'`
+  );
+  return rowCount;
+}
+
+function formatCandidate(r) {
+  return {
+    id: r.id,
+    externalId: r.external_id,
+    title: r.title,
+    summary: r.summary,
+    sourceName: r.source_name,
+    sourceUrl: r.source_url,
+    publishedAt: r.published_at instanceof Date ? r.published_at.toISOString().slice(0, 10) : String(r.published_at || "").slice(0, 10),
+    status: r.status,
+    reportId: r.report_id,
+    createdAt: r.created_at,
+  };
+}
+
 // Format DB row → clean JSON
 function formatRow(r) {
   return {
@@ -184,4 +270,6 @@ module.exports = {
   getPublicReports, getAllReports, getReport,
   createReport, updateReport, deleteReport,
   toggleInclude, getStats,
+  getCandidates, getCandidateStats, createCandidate,
+  updateCandidateStatus, deleteOldCandidates,
 };

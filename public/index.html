@@ -95,6 +95,39 @@
           <p><strong>Included:</strong> First-time layoffs where AI was a material factor — either explicitly cited by the company, or identified by credible reporting as a primary driver. <strong>Excluded:</strong> Restated totals, duplicate announcements, and layoffs attributed solely to non-AI factors.</p>
         </div>
       </details>
+
+      <details class="method" style="margin-top:0.5rem">
+        <summary>Data dictionary</summary>
+        <div class="method-body">
+          <p><strong>EXPLICIT</strong> — The company publicly cited AI, automation, or machine learning as a reason for the workforce reduction in an official statement, SEC filing, or on-the-record comment.</p>
+          <p><strong>BLAMED</strong> — At least one credible news outlet (AP, Reuters, major business press, or industry publication) identified AI as a primary driver, based on reporting, internal sources, or pattern analysis — even if the company did not say so directly.</p>
+          <p><strong>MIXED</strong> — AI is cited alongside other material factors (restructuring, market conditions, cost reduction). The layoff is partially but not solely attributable to AI.</p>
+          <p><strong>Jobs lost</strong> — The number of positions eliminated in the announced action. Where companies give a range, we use the midpoint. Figures marked with ~ are estimates based on reporting rather than official numbers.</p>
+          <p><strong>Running total</strong> — Cumulative job losses at that company across all tracked reports since January 1, 2025.</p>
+          <p><strong>Workforce %</strong> — Running total as a percentage of the company's most recently reported total workforce. "n/a" indicates workforce size is unavailable or not applicable.</p>
+        </div>
+      </details>
+
+      <details class="method" style="margin-top:0.5rem">
+        <summary>Update log</summary>
+        <div class="method-body" id="updateLog">
+          <p style="color:var(--text-dim);font-style:italic">Loading...</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Citation + contact -->
+  <section class="cite-section">
+    <div class="cite-wrap">
+      <div class="cite-block">
+        <h3>Cite this data</h3>
+        <p>The Alliance for Secure AI, <em>AI Job Loss Tracker</em>, accessed <span id="citeDate"></span>. Available at <a href="https://ai-job-tracker.up.railway.app">ai-job-tracker.up.railway.app</a>.</p>
+      </div>
+      <div class="cite-block">
+        <h3>Report an error or suggest a source</h3>
+        <p>If you've identified an AI-linked layoff not reflected here, or found an error in our data, contact us at <a href="/cdn-cgi/l/email-protection#ef8c80819b8e8c9baf9c8a8c9a9d8a8e86818098c1809d88"><span class="__cf_email__" data-cfemail="24474b4a5045475064574147515641454d4a4b530a4b5643">[email&#160;protected]</span></a>.</p>
+      </div>
     </div>
   </section>
 </main>
@@ -108,7 +141,7 @@
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const BASELINE = new Date(2025, 0, 1);
 const C_TYPES = new Set(["NEW"]);
 const C_ATTR = new Set(["EXPLICIT", "BLAMED", "MIXED"]);
@@ -167,6 +200,19 @@ function render(reports) {
   const rows = buildRows(counted);
   buildTable(document.getElementById("tableBody"), rows);
   buildCards(document.getElementById("mobileCards"), rows);
+
+  // Update log — show last 5 reports added
+  const logEl = document.getElementById("updateLog");
+  if (logEl && rows.length) {
+    const recent = rows.slice(0, 5);
+    logEl.innerHTML = recent.map(r =>
+      `<p><strong>${esc(dfmt(parseDate(r.date)))}</strong> — Added ${esc(r.company)} (${nf.format(n(r.jobsLost))} jobs). Source: ${srcLink(r)}</p>`
+    ).join("");
+  }
+
+  // Citation date
+  const citeEl = document.getElementById("citeDate");
+  if (citeEl) citeEl.textContent = dfmt(new Date());
 }
 
 function buildPace(reps) {
@@ -406,8 +452,4 @@ function parseDate(v) {
 function n(v) { const x = Number(v); return isFinite(x) ? x : 0; }
 function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
 function safeUrl(u) { if (!u) return ""; try { const p = new URL(u, location.href); return /^https?:$/.test(p.protocol) ? p.toString() : ""; } catch { return ""; } }
-function inferSrc(u) { if (!u) return "Source"; try { const h = new URL(u).hostname; if (h.includes("apnews")) return "AP"; if (h.includes("cnbc")) return "CNBC"; if (h.includes("reuters")) return "Reuters"; return h.replace("www.", ""); } catch { return "Source"; } }
-function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
-</script>
-</body>
-</html>
+function inferSrc(u) { if (!u) return "Source"; try { const h = new URL(u).hostname; if (h.includes("apnews")) return "AP"; if (h.includes("

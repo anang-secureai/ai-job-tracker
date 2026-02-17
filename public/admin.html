@@ -11,29 +11,45 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.2rem}
+    .tab-btn{padding:.6rem 1.2rem;font:inherit;font-size:.88rem;font-weight:700;color:var(--text-dim);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+    .tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--seaweed);border-bottom-color:var(--seaweed)}
+    .tab-btn .badge{display:inline-flex;align-items:center;justify-content:center;min-width:1.3rem;height:1.3rem;padding:0 .35rem;border-radius:999px;font-size:.68rem;font-weight:800;margin-left:.4rem}
+    .tab-btn .badge.pending{background:#fef0d0;color:#8a6000}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+    .scan-bar{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap}
+    .scan-bar select{padding:.4rem .6rem;border-radius:.4rem;border:1px solid var(--border);font:inherit;font-size:.82rem}
+    .scan-status{font-size:.82rem;color:var(--text-dim)}
+    .cand-list{display:flex;flex-direction:column;gap:.6rem}
+    .cand-card{border:1px solid var(--border);border-radius:.65rem;padding:.85rem 1rem;background:var(--bg);box-shadow:var(--shadow-sm)}
+    .cand-card.rejected{opacity:.5}.cand-card.approved{border-left:3px solid var(--green)}
+    .cand-title{font-weight:700;font-size:.92rem;color:var(--seaweed);margin:0}
+    .cand-meta{font-size:.72rem;color:var(--text-dim);margin:.15rem 0 0}
+    .cand-summary{font-size:.82rem;color:var(--text-mid);margin:.4rem 0;line-height:1.45}
+    .cand-actions{display:flex;gap:.5rem;align-items:center}
+    .cand-status-tag{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .45rem;border-radius:999px}
+    .cand-status-tag.pending{background:#fef0d0;color:#8a6000}
+    .cand-status-tag.approved{background:#e6f4e6;color:#1a5c1a}
+    .cand-status-tag.rejected{background:#f5f5f5;color:#888}
+    .filter-bar{display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap}
+    .filter-btn{padding:.3rem .7rem;border-radius:999px;border:1px solid var(--border);background:var(--bg);font:inherit;font-size:.76rem;font-weight:600;cursor:pointer;color:var(--text-mid);transition:all .15s}
+    .filter-btn:hover{border-color:var(--green)}.filter-btn.active{background:var(--seaweed);color:#fff;border-color:var(--seaweed)}
+  </style>
 </head>
 <body class="admin-body">
-
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <div class="login-logo logo-mask-center"
-         style="--mask-img:url(/assets/the-alliance-logo-white-1600.png); width:180px; height:auto; aspect-ratio:1600/583; margin:0 auto 1.2rem"
-         role="img" aria-label="The Alliance for Secure AI"></div>
+    <div class="login-logo logo-mask-center" style="--mask-img:url(/assets/the-alliance-logo-white-1600.png);width:180px;height:auto;aspect-ratio:1600/583;margin:0 auto 1.2rem" role="img" aria-label="The Alliance for Secure AI"></div>
     <h1>AI Job Tracker — Admin</h1>
-    <form id="loginForm">
-      <input type="password" id="loginPassword" placeholder="Enter admin password" autocomplete="current-password" />
-      <button type="submit" class="btn btn-primary" style="width:100%">Sign in</button>
-    </form>
+    <form id="loginForm"><input type="password" id="loginPassword" placeholder="Enter admin password" autocomplete="current-password" /><button type="submit" class="btn btn-primary" style="width:100%">Sign in</button></form>
     <p class="login-error" id="loginError"></p>
   </div>
 </div>
-
 <div class="admin-app" id="app">
   <nav class="topbar">
     <div class="topbar-left">
-      <div class="topbar-shield logo-mask-dark"
-           style="--mask-img:url(/assets/the-alliance-shield-white-256.png); height:1.4rem; width:1.2rem"
-           aria-hidden="true"></div>
+      <div class="topbar-shield logo-mask-dark" style="--mask-img:url(/assets/the-alliance-shield-white-256.png);height:1.4rem;width:1.2rem" aria-hidden="true"></div>
       <h1>AI Job Tracker Admin</h1>
     </div>
     <div class="topbar-right">
@@ -41,32 +57,43 @@
       <button class="btn btn-sm btn-danger" id="logoutBtn">Sign out</button>
     </div>
   </nav>
-
   <div class="container">
     <div class="admin-stats-bar" id="statsBar">
       <div class="stat-chip"><strong id="statTotal">0</strong> total reports</div>
       <div class="stat-chip"><strong id="statPublished">0</strong> published</div>
       <div class="stat-chip"><strong id="statDraft">0</strong> drafts</div>
     </div>
-
-    <div class="table-section">
-      <div class="table-header">
-        <h2>All Reports</h2>
-        <button class="btn btn-primary" id="addBtn">+ Add Report</button>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="reports">Reports</button>
+      <button class="tab-btn" data-tab="candidates">Candidates <span class="badge pending" id="candBadge" style="display:none">0</span></button>
+    </div>
+    <div class="tab-panel active" id="tab-reports">
+      <div class="table-section">
+        <div class="table-header"><h2>All Reports</h2><button class="btn btn-primary" id="addBtn">+ Add Report</button></div>
+        <div style="overflow-x:auto">
+          <table class="admin-table">
+            <thead><tr><th scope="col">Published</th><th scope="col">Date</th><th scope="col">Company</th><th scope="col">Jobs Lost</th><th scope="col">Attribution</th><th scope="col">Industry</th><th scope="col">Source</th><th scope="col" style="text-align:right">Actions</th></tr></thead>
+            <tbody id="reportsList"></tbody>
+          </table>
+        </div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="admin-table">
-          <thead><tr>
-            <th scope="col">Published</th><th scope="col">Date</th><th scope="col">Company</th><th scope="col">Jobs Lost</th>
-            <th scope="col">Attribution</th><th scope="col">Industry</th><th scope="col">Source</th><th scope="col" style="text-align:right">Actions</th>
-          </tr></thead>
-          <tbody id="reportsList"></tbody>
-        </table>
+    </div>
+    <div class="tab-panel" id="tab-candidates">
+      <div class="scan-bar">
+        <button class="btn btn-primary" id="scanBtn">🔍 Scan for candidates</button>
+        <select id="scanDays"><option value="1">Last 24 hours</option><option value="3" selected>Last 3 days</option><option value="7">Last 7 days</option></select>
+        <span class="scan-status" id="scanStatus"></span>
       </div>
+      <div class="filter-bar" id="candFilters">
+        <button class="filter-btn active" data-status="">All</button>
+        <button class="filter-btn" data-status="PENDING">Pending</button>
+        <button class="filter-btn" data-status="APPROVED">Approved</button>
+        <button class="filter-btn" data-status="REJECTED">Rejected</button>
+      </div>
+      <div class="cand-list" id="candList"><div class="empty-state">No candidates yet. Click "Scan for candidates" to search Event Registry.</div></div>
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal">
   <div class="modal" role="dialog" aria-labelledby="modalTitle">
     <h2 id="modalTitle">Add Report</h2>
@@ -76,13 +103,9 @@
         <div class="form-group"><label for="fDate">Date *</label><input type="date" id="fDate" required /></div>
         <div class="form-group"><label for="fCompany">Company *</label><input type="text" id="fCompany" required placeholder="e.g. Amazon" /></div>
         <div class="form-group"><label for="fJobsLost">Jobs Lost *</label><input type="number" id="fJobsLost" required min="1" placeholder="e.g. 14000" /></div>
-        <div class="form-group"><label for="fAttribution">AI Attribution *</label>
-          <select id="fAttribution"><option value="EXPLICIT">EXPLICIT — company cited AI</option><option value="BLAMED" selected>BLAMED — reporting cites AI</option><option value="MIXED">MIXED — AI + other factors</option></select>
-        </div>
+        <div class="form-group"><label for="fAttribution">AI Attribution *</label><select id="fAttribution"><option value="EXPLICIT">EXPLICIT — company cited AI</option><option value="BLAMED" selected>BLAMED — reporting cites AI</option><option value="MIXED">MIXED — AI + other factors</option></select></div>
         <div class="form-group"><label for="fIndustry">Industry</label><input type="text" id="fIndustry" placeholder="e.g. Technology" /></div>
-        <div class="form-group"><label for="fRegion">Region</label>
-          <select id="fRegion"><option value="US">US</option><option value="INTL">International</option><option value="GLOBAL" selected>Global</option></select>
-        </div>
+        <div class="form-group"><label for="fRegion">Region</label><select id="fRegion"><option value="US">US</option><option value="INTL">International</option><option value="GLOBAL" selected>Global</option></select></div>
         <div class="form-group"><label for="fCountry">Country</label><input type="text" id="fCountry" placeholder="e.g. United States" /></div>
         <div class="form-group"><label for="fWorkforce">Total Workforce</label><input type="number" id="fWorkforce" min="0" placeholder="optional" /></div>
         <div class="form-group"><label for="fSourceLabel">Source</label><input type="text" id="fSourceLabel" placeholder="e.g. AP, CNBC, Reuters" /></div>
@@ -91,147 +114,65 @@
         <div class="form-group"><div class="form-row-check"><input type="checkbox" id="fEstimate" /><label for="fEstimate">Number is an estimate</label></div></div>
         <div class="form-group"><div class="form-row-check"><input type="checkbox" id="fInclude" /><label for="fInclude">Publish to dashboard</label></div></div>
       </div>
-      <div class="form-actions">
-        <button type="button" class="btn" id="cancelBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="saveBtn">Save Report</button>
-      </div>
+      <div class="form-actions"><button type="button" class="btn" id="cancelBtn">Cancel</button><button type="submit" class="btn btn-primary" id="saveBtn">Save Report</button></div>
     </form>
   </div>
 </div>
-
+<div class="modal-backdrop" id="approveModal">
+  <div class="modal" role="dialog" aria-labelledby="approveTitle">
+    <h2 id="approveTitle">Approve Candidate → Create Report</h2>
+    <p id="approveSummary" style="font-size:.84rem;color:var(--text-mid);margin-bottom:1rem;line-height:1.5"></p>
+    <form id="approveForm">
+      <input type="hidden" id="aId" /><input type="hidden" id="aSourceUrl" /><input type="hidden" id="aSourceLabel" />
+      <div class="form-grid">
+        <div class="form-group"><label for="aCompany">Company *</label><input type="text" id="aCompany" required placeholder="e.g. Amazon" /></div>
+        <div class="form-group"><label for="aJobsLost">Jobs Lost *</label><input type="number" id="aJobsLost" required min="1" placeholder="e.g. 14000" /></div>
+        <div class="form-group"><label for="aDate">Date</label><input type="date" id="aDate" /></div>
+        <div class="form-group"><label for="aAttribution">AI Attribution</label><select id="aAttribution"><option value="EXPLICIT">EXPLICIT</option><option value="BLAMED" selected>BLAMED</option><option value="MIXED">MIXED</option></select></div>
+        <div class="form-group"><label for="aIndustry">Industry</label><input type="text" id="aIndustry" placeholder="e.g. Technology" /></div>
+        <div class="form-group"><label for="aRegion">Region</label><select id="aRegion"><option value="US">US</option><option value="INTL">International</option><option value="GLOBAL" selected>Global</option></select></div>
+      </div>
+      <div class="form-actions"><button type="button" class="btn" id="approveCancelBtn">Cancel</button><button type="submit" class="btn btn-primary">Create Draft Report</button></div>
+    </form>
+  </div>
+</div>
 <div class="toast-container" id="toasts"></div>
-
 <script>
-const $ = id => document.getElementById(id);
-const dateFmt = d => d ? new Date(d + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—";
-const numFmt = new Intl.NumberFormat("en-US");
-let reports = [];
-
-async function checkAuth() {
-  try { const r = await fetch("/api/auth/check"); const d = await r.json(); if (d.authenticated) { showApp(); return; } } catch {}
-  showLogin();
-}
-function showLogin() { $("loginScreen").style.display = "flex"; $("app").classList.remove("active"); }
-function showApp() { $("loginScreen").style.display = "none"; $("app").classList.add("active"); loadReports(); }
-
-$("loginForm").addEventListener("submit", async e => {
-  e.preventDefault(); $("loginError").textContent = "";
-  try {
-    const r = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: $("loginPassword").value }) });
-    const d = await r.json();
-    if (d.ok) showApp(); else $("loginError").textContent = d.error || "Login failed";
-  } catch { $("loginError").textContent = "Connection error"; }
-});
-$("logoutBtn").addEventListener("click", async () => { await fetch("/api/logout", { method: "POST" }); showLogin(); $("loginPassword").value = ""; });
-
-async function loadReports() {
-  try {
-    const r = await fetch("/api/admin/reports");
-    if (r.status === 401) { showLogin(); return; }
-    const d = await r.json(); reports = d.reports || [];
-    renderStats(d.stats); renderTable();
-  } catch { toast("Failed to load reports", true); }
-}
-function renderStats(s) { if (!s) return; $("statTotal").textContent = s.total; $("statPublished").textContent = s.published; $("statDraft").textContent = s.draft; }
-function renderTable() {
-  const tb = $("reportsList");
-  if (!reports.length) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No reports yet. Click "Add Report" to get started.</td></tr>'; return; }
-  tb.innerHTML = reports.map(r => {
-    const attr = (r.aiAttribution || "MIXED").toLowerCase();
-    const tagClass = attr === "explicit" ? "explicit" : attr === "blamed" ? "blamed" : "mixed";
-    const srcDomain = r.sourceUrl ? (() => { try { return new URL(r.sourceUrl).hostname.replace("www.", ""); } catch { return ""; } })() : "";
-    return `<tr data-id="${r.id}">
-      <td><button class="toggle-track ${r.include ? "on" : ""}" onclick="togglePub(${r.id})" aria-label="${r.include ? "Published, click to unpublish" : "Draft, click to publish"}"><span class="toggle-knob"></span></button></td>
-      <td style="white-space:nowrap">${dateFmt(r.date)}</td>
-      <td><strong>${esc(r.company)}</strong></td>
-      <td>${r.estimate ? "~" : ""}${numFmt.format(r.jobsLost)}</td>
-      <td><span class="attr-tag ${tagClass}">${esc(attr)}</span></td>
-      <td>${esc(r.industry || "")}</td>
-      <td>${r.sourceUrl ? `<a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener" class="source-link">${esc(r.sourceLabel || srcDomain || "link")}</a>` : esc(r.sourceLabel || "—")}</td>
-      <td style="text-align:right;white-space:nowrap">
-        <button class="btn btn-sm btn-icon" onclick="editReport(${r.id})" aria-label="Edit ${esc(r.company)}">✎</button>
-        <button class="btn btn-sm btn-icon btn-danger" onclick="deleteReport(${r.id})" aria-label="Delete ${esc(r.company)}">✕</button>
-      </td></tr>`;
-  }).join("");
-}
-
-async function togglePub(id) {
-  try {
-    const r = await fetch(`/api/admin/reports/${id}/toggle`, { method: "PATCH" });
-    if (r.status === 401) { showLogin(); return; }
-    const d = await r.json();
-    if (d.ok) { const idx = reports.findIndex(x => x.id === id); if (idx >= 0) reports[idx] = d.report; renderTable(); toast(d.report.include ? "Published" : "Unpublished"); refreshStats(); }
-  } catch { toast("Toggle failed", true); }
-}
-window.togglePub = togglePub;
-async function refreshStats() { try { const r = await fetch("/api/admin/reports"); const d = await r.json(); renderStats(d.stats); } catch {} }
-
-function openModal(report) {
-  $("modalTitle").textContent = report ? "Edit Report" : "Add Report";
-  $("saveBtn").textContent = report ? "Update Report" : "Save Report";
-  $("fId").value = report ? report.id : "";
-  $("fDate").value = report ? report.date : new Date().toISOString().slice(0, 10);
-  $("fCompany").value = report ? report.company : "";
-  $("fJobsLost").value = report ? report.jobsLost : "";
-  $("fAttribution").value = report ? report.aiAttribution : "BLAMED";
-  $("fIndustry").value = report ? report.industry || "" : "";
-  $("fRegion").value = report ? report.region : "GLOBAL";
-  $("fCountry").value = report ? report.country || "" : "";
-  $("fWorkforce").value = report ? (report.workforce || "") : "";
-  $("fSourceLabel").value = report ? report.sourceLabel || "" : "";
-  $("fSourceUrl").value = report ? report.sourceUrl || "" : "";
-  $("fStockDelta").value = report ? (report.stockDeltaPct ?? "") : "";
-  $("fEstimate").checked = report ? report.estimate : false;
-  $("fInclude").checked = report ? report.include : false;
-  $("modal").classList.add("open"); $("fCompany").focus();
-}
-function closeModal() { $("modal").classList.remove("open"); }
-$("addBtn").addEventListener("click", () => openModal(null));
-$("cancelBtn").addEventListener("click", closeModal);
-$("modal").addEventListener("click", e => { if (e.target === $("modal")) closeModal(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
-window.editReport = function(id) { const r = reports.find(x => x.id === id); if (r) openModal(r); };
-
-$("reportForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const id = $("fId").value;
-  const body = {
-    date: $("fDate").value, company: $("fCompany").value, jobs_lost: $("fJobsLost").value,
-    ai_attribution: $("fAttribution").value, industry: $("fIndustry").value || "Unknown",
-    region: $("fRegion").value, country: $("fCountry").value || "Global",
-    workforce: $("fWorkforce").value || 0, source_label: $("fSourceLabel").value,
-    source_url: $("fSourceUrl").value, stock_delta_pct: $("fStockDelta").value || null,
-    estimate: $("fEstimate").checked, include: $("fInclude").checked, loss_type: "NEW",
-  };
-  try {
-    const method = id ? "PUT" : "POST";
-    const url = id ? `/api/admin/reports/${id}` : "/api/admin/reports";
-    const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    if (r.status === 401) { showLogin(); return; }
-    const d = await r.json();
-    if (d.ok) { closeModal(); toast(id ? "Report updated" : "Report added"); loadReports(); }
-    else toast(d.error || "Save failed", true);
-  } catch { toast("Save failed — connection error", true); }
-});
-
-window.deleteReport = async function(id) {
-  const r = reports.find(x => x.id === id);
-  if (!confirm(`Delete "${r?.company || "this report"}"? This cannot be undone.`)) return;
-  try {
-    const resp = await fetch(`/api/admin/reports/${id}`, { method: "DELETE" });
-    if (resp.status === 401) { showLogin(); return; }
-    const d = await resp.json();
-    if (d.ok) { toast("Deleted"); loadReports(); } else toast("Delete failed", true);
-  } catch { toast("Delete failed", true); }
-};
-
-function toast(msg, err) {
-  const t = document.createElement("div"); t.className = "toast" + (err ? " error" : "");
-  t.textContent = msg; $("toasts").appendChild(t);
-  setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 300); }, 2800);
-}
-function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
-
+const $=id=>document.getElementById(id);const dateFmt=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}):"—";const numFmt=new Intl.NumberFormat("en-US");let reports=[],candidates=[],candFilter="";
+async function checkAuth(){try{const r=await fetch("/api/auth/check");const d=await r.json();if(d.authenticated){showApp();return}}catch{}showLogin()}
+function showLogin(){$("loginScreen").style.display="flex";$("app").classList.remove("active")}
+function showApp(){$("loginScreen").style.display="none";$("app").classList.add("active");loadReports();loadCandidates()}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginError").textContent="";try{const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("loginPassword").value})});const d=await r.json();if(d.ok)showApp();else $("loginError").textContent=d.error||"Login failed"}catch{$("loginError").textContent="Connection error"}});
+$("logoutBtn").addEventListener("click",async()=>{await fetch("/api/logout",{method:"POST"});showLogin();$("loginPassword").value=""});
+document.querySelectorAll(".tab-btn").forEach(btn=>{btn.addEventListener("click",()=>{document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));btn.classList.add("active");$("tab-"+btn.dataset.tab).classList.add("active")})});
+async function loadReports(){try{const r=await fetch("/api/admin/reports");if(r.status===401){showLogin();return}const d=await r.json();reports=d.reports||[];renderStats(d.stats);renderTable()}catch{toast("Failed to load reports",true)}}
+function renderStats(s){if(!s)return;$("statTotal").textContent=s.total;$("statPublished").textContent=s.published;$("statDraft").textContent=s.draft}
+function renderTable(){const tb=$("reportsList");if(!reports.length){tb.innerHTML='<tr><td colspan="8" class="empty-state">No reports yet.</td></tr>';return}
+tb.innerHTML=reports.map(r=>{const attr=(r.aiAttribution||"MIXED").toLowerCase();const tagClass=attr==="explicit"?"explicit":attr==="blamed"?"blamed":"mixed";const srcDomain=r.sourceUrl?(()=>{try{return new URL(r.sourceUrl).hostname.replace("www.","")}catch{return""}})():"";return`<tr data-id="${r.id}"><td><button class="toggle-track ${r.include?"on":""}" onclick="togglePub(${r.id})" aria-label="${r.include?"Published":"Draft"}"><span class="toggle-knob"></span></button></td><td style="white-space:nowrap">${dateFmt(r.date)}</td><td><strong>${esc(r.company)}</strong></td><td>${r.estimate?"~":""}${numFmt.format(r.jobsLost)}</td><td><span class="attr-tag ${tagClass}">${esc(attr)}</span></td><td>${esc(r.industry||"")}</td><td>${r.sourceUrl?`<a href="${esc(r.sourceUrl)}" target="_blank" rel="noopener" class="source-link">${esc(r.sourceLabel||srcDomain||"link")}</a>`:esc(r.sourceLabel||"—")}</td><td style="text-align:right;white-space:nowrap"><button class="btn btn-sm btn-icon" onclick="editReport(${r.id})" aria-label="Edit">✎</button> <button class="btn btn-sm btn-icon btn-danger" onclick="deleteReport(${r.id})" aria-label="Delete">✕</button></td></tr>`}).join("")}
+async function togglePub(id){try{const r=await fetch(`/api/admin/reports/${id}/toggle`,{method:"PATCH"});if(r.status===401){showLogin();return}const d=await r.json();if(d.ok){const idx=reports.findIndex(x=>x.id===id);if(idx>=0)reports[idx]=d.report;renderTable();toast(d.report.include?"Published":"Unpublished");refreshStats()}}catch{toast("Toggle failed",true)}}
+window.togglePub=togglePub;
+async function refreshStats(){try{const r=await fetch("/api/admin/reports");const d=await r.json();renderStats(d.stats)}catch{}}
+function openModal(report){$("modalTitle").textContent=report?"Edit Report":"Add Report";$("saveBtn").textContent=report?"Update Report":"Save Report";$("fId").value=report?report.id:"";$("fDate").value=report?report.date:new Date().toISOString().slice(0,10);$("fCompany").value=report?report.company:"";$("fJobsLost").value=report?report.jobsLost:"";$("fAttribution").value=report?report.aiAttribution:"BLAMED";$("fIndustry").value=report?report.industry||"":"";$("fRegion").value=report?report.region:"GLOBAL";$("fCountry").value=report?report.country||"":"";$("fWorkforce").value=report?(report.workforce||""):"";$("fSourceLabel").value=report?report.sourceLabel||"":"";$("fSourceUrl").value=report?report.sourceUrl||"":"";$("fStockDelta").value=report?(report.stockDeltaPct??""):"";$("fEstimate").checked=report?report.estimate:false;$("fInclude").checked=report?report.include:false;$("modal").classList.add("open");$("fCompany").focus()}
+function closeModal(){$("modal").classList.remove("open")}
+$("addBtn").addEventListener("click",()=>openModal(null));$("cancelBtn").addEventListener("click",closeModal);$("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeApproveModal()}});
+window.editReport=function(id){const r=reports.find(x=>x.id===id);if(r)openModal(r)};
+$("reportForm").addEventListener("submit",async e=>{e.preventDefault();const id=$("fId").value;const body={date:$("fDate").value,company:$("fCompany").value,jobs_lost:$("fJobsLost").value,ai_attribution:$("fAttribution").value,industry:$("fIndustry").value||"Unknown",region:$("fRegion").value,country:$("fCountry").value||"Global",workforce:$("fWorkforce").value||0,source_label:$("fSourceLabel").value,source_url:$("fSourceUrl").value,stock_delta_pct:$("fStockDelta").value||null,estimate:$("fEstimate").checked,include:$("fInclude").checked,loss_type:"NEW"};try{const method=id?"PUT":"POST";const url=id?`/api/admin/reports/${id}`:"/api/admin/reports";const r=await fetch(url,{method,headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(r.status===401){showLogin();return}const d=await r.json();if(d.ok){closeModal();toast(id?"Report updated":"Report added");loadReports()}else toast(d.error||"Save failed",true)}catch{toast("Save failed",true)}});
+window.deleteReport=async function(id){const r=reports.find(x=>x.id===id);if(!confirm(`Delete "${r?.company||"this report"}"?`))return;try{const resp=await fetch(`/api/admin/reports/${id}`,{method:"DELETE"});if(resp.status===401){showLogin();return}const d=await resp.json();if(d.ok){toast("Deleted");loadReports()}else toast("Delete failed",true)}catch{toast("Delete failed",true)}};
+async function loadCandidates(){try{const r=await fetch("/api/admin/candidates");if(r.status===401)return;const d=await r.json();candidates=d.candidates||[];updateCandBadge(d.stats);renderCandidates()}catch{}}
+function updateCandBadge(stats){const badge=$("candBadge");if(!stats||!stats.pending||stats.pending==="0"){badge.style.display="none";return}badge.textContent=stats.pending;badge.style.display="inline-flex"}
+function renderCandidates(){const list=$("candList");const filtered=candFilter?candidates.filter(c=>c.status===candFilter):candidates;if(!filtered.length){list.innerHTML=`<div class="empty-state">${candFilter?"No "+candFilter.toLowerCase()+" candidates.":"No candidates yet. Click \"Scan for candidates\" to search Event Registry."}</div>`;return}
+list.innerHTML=filtered.map(c=>{const sc=c.status.toLowerCase();const isPending=c.status==="PENDING";return`<div class="cand-card ${sc}"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem"><div style="min-width:0"><h3 class="cand-title">${esc(c.title)}</h3><p class="cand-meta">${esc(c.sourceName)} · ${dateFmt(c.publishedAt)}${c.sourceUrl?` · <a href="${esc(c.sourceUrl)}" target="_blank" rel="noopener" class="source-link">Read article ↗</a>`:""}</p></div><span class="cand-status-tag ${sc}">${esc(c.status)}</span></div>${c.summary?`<p class="cand-summary">${esc(c.summary)}</p>`:""}${isPending?`<div class="cand-actions"><button class="btn btn-sm btn-primary" onclick="openApprove(${c.id})">✓ Approve</button> <button class="btn btn-sm btn-danger" onclick="rejectCandidate(${c.id})">✕ Reject</button></div>`:""}</div>`}).join("")}
+document.querySelectorAll("#candFilters .filter-btn").forEach(btn=>{btn.addEventListener("click",()=>{document.querySelectorAll("#candFilters .filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");candFilter=btn.dataset.status;renderCandidates()})});
+$("scanBtn").addEventListener("click",async()=>{const btn=$("scanBtn");const status=$("scanStatus");btn.disabled=true;btn.textContent="Scanning...";status.textContent="";try{const r=await fetch("/api/admin/candidates/fetch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({days_back:parseInt($("scanDays").value)})});if(r.status===401){showLogin();return}const d=await r.json();if(d.ok!==false){status.textContent=`Found ${d.added||0} new candidates, ${d.skipped||0} duplicates skipped.`;toast(`${d.added||0} new candidates found`);loadCandidates()}else{status.textContent=d.message||d.error||"Scan failed";toast(d.message||"Scan failed",true)}}catch{status.textContent="Connection error";toast("Scan failed",true)}btn.disabled=false;btn.textContent="🔍 Scan for candidates"});
+function openApprove(id){const c=candidates.find(x=>x.id===id);if(!c)return;$("aId").value=c.id;$("aSourceUrl").value=c.sourceUrl||"";$("aSourceLabel").value=c.sourceName||"";$("approveSummary").textContent=c.title+(c.summary?" — "+c.summary.slice(0,200):"");$("aCompany").value="";$("aJobsLost").value="";$("aDate").value=c.publishedAt||new Date().toISOString().slice(0,10);$("aIndustry").value="";$("approveModal").classList.add("open");$("aCompany").focus()}
+window.openApprove=openApprove;
+function closeApproveModal(){$("approveModal").classList.remove("open")}
+$("approveCancelBtn").addEventListener("click",closeApproveModal);$("approveModal").addEventListener("click",e=>{if(e.target===$("approveModal"))closeApproveModal()});
+$("approveForm").addEventListener("submit",async e=>{e.preventDefault();try{const r=await fetch(`/api/admin/candidates/${$("aId").value}/approve`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company:$("aCompany").value,jobs_lost:$("aJobsLost").value,date:$("aDate").value,ai_attribution:$("aAttribution").value,industry:$("aIndustry").value||"Unknown",region:$("aRegion").value,source_url:$("aSourceUrl").value,source_label:$("aSourceLabel").value})});if(r.status===401){showLogin();return}const d=await r.json();if(d.ok){closeApproveModal();toast("Draft report created from candidate");loadCandidates();loadReports()}else toast(d.error||"Approve failed",true)}catch{toast("Approve failed",true)}});
+window.rejectCandidate=async function(id){try{const r=await fetch(`/api/admin/candidates/${id}/reject`,{method:"POST"});if(r.status===401){showLogin();return}const d=await r.json();if(d.ok){toast("Candidate rejected");loadCandidates()}else toast("Reject failed",true)}catch{toast("Reject failed",true)}};
+function toast(msg,err){const t=document.createElement("div");t.className="toast"+(err?" error":"");t.textContent=msg;$("toasts").appendChild(t);setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),300)},2800)}
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 checkAuth();
 </script>
 </body>

@@ -9,6 +9,11 @@ const compression = require("compression");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const db = require("./db");
+const er = require("./event-registry");
+
+// Optional: daily auto-fetch (only if cron is installed)
+let cron;
+try { cron = require("node-cron"); } catch { cron = null; }
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -185,6 +190,74 @@ app.patch("/api/admin/reports/:id/toggle", requireAuth, async (req, res) => {
   }
 });
 
+// ── Candidate API (Event Registry pipeline) ─────────────────────────
+
+// GET /api/admin/candidates — list candidates with optional status filter
+app.get("/api/admin/candidates", requireAuth, async (req, res) => {
+  try {
+    const status = req.query.status || null;
+    const candidates = await db.getCandidates(status);
+    const stats = await db.getCandidateStats();
+    res.json({ ok: true, candidates, stats });
+  } catch (err) {
+    console.error("[api] candidates error:", err);
+    res.status(500).json({ ok: false, error: "Database error" });
+  }
+});
+
+// POST /api/admin/candidates/fetch — trigger Event Registry scan
+app.post("/api/admin/candidates/fetch", requireAuth, async (req, res) => {
+  try {
+    const daysBack = parseInt(req.body.days_back) || 3;
+    const result = await er.fetchCandidates(daysBack);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error("[api] candidates fetch error:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// POST /api/admin/candidates/:id/approve — approve candidate → create draft report
+app.post("/api/admin/candidates/:id/approve", requireAuth, async (req, res) => {
+  try {
+    const { company, jobs_lost, date, industry, ai_attribution } = req.body;
+    if (!company || !jobs_lost) {
+      return res.status(400).json({ ok: false, error: "company and jobs_lost required" });
+    }
+    // Create a draft report from the candidate
+    const report = await db.createReport({
+      date: date || new Date().toISOString().slice(0, 10),
+      company,
+      jobs_lost: parseInt(jobs_lost),
+      industry: industry || "Unknown",
+      ai_attribution: ai_attribution || "BLAMED",
+      source_label: req.body.source_label || "",
+      source_url: req.body.source_url || "",
+      region: req.body.region || "GLOBAL",
+      country: req.body.country || "Global",
+      include: false, // starts as draft — team publishes when ready
+    });
+    // Link candidate to the report
+    await db.updateCandidateStatus(req.params.id, "APPROVED", report.id);
+    res.json({ ok: true, report });
+  } catch (err) {
+    console.error("[api] candidate approve error:", err);
+    res.status(500).json({ ok: false, error: "Database error" });
+  }
+});
+
+// POST /api/admin/candidates/:id/reject — mark candidate as not relevant
+app.post("/api/admin/candidates/:id/reject", requireAuth, async (req, res) => {
+  try {
+    const candidate = await db.updateCandidateStatus(req.params.id, "REJECTED");
+    if (!candidate) return res.status(404).json({ ok: false, error: "Not found" });
+    res.json({ ok: true, candidate });
+  } catch (err) {
+    console.error("[api] candidate reject error:", err);
+    res.status(500).json({ ok: false, error: "Database error" });
+  }
+});
+
 // ── Page routes ──────────────────────────────────────────────────────
 
 app.get("/", (req, res) => {
@@ -220,6 +293,25 @@ async function start() {
       console.log(`[server] Running on port ${PORT}`);
       console.log(`[server] Dashboard: http://localhost:${PORT}`);
       console.log(`[server] Admin: http://localhost:${PORT}/admin`);
+
+      // Daily auto-fetch from Event Registry at 8:00 AM UTC
+      if (cron && process.env.EVENT_REGISTRY_API_KEY) {
+        cron.schedule("0 8 * * *", async () => {
+          console.log("[cron] Running daily Event Registry scan...");
+          try {
+            const result = await er.fetchCandidates(2);
+            console.log(`[cron] Done: ${result.added} new, ${result.skipped} dupes`);
+            // Clean up old rejected candidates monthly
+            const cleaned = await db.deleteOldCandidates(60);
+            if (cleaned) console.log(`[cron] Cleaned ${cleaned} old rejected candidates`);
+          } catch (e) {
+            console.error("[cron] Event Registry scan failed:", e.message);
+          }
+        });
+        console.log("[server] Daily Event Registry scan scheduled (08:00 UTC)");
+      } else if (!process.env.EVENT_REGISTRY_API_KEY) {
+        console.log("[server] EVENT_REGISTRY_API_KEY not set — candidate scanning disabled");
+      }
     });
   } catch (err) {
     console.error("[FATAL] Startup failed:", err);
