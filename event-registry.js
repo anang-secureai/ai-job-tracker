@@ -18,21 +18,12 @@ const API_KEY = () => process.env.EVENT_REGISTRY_API_KEY;
 // This produces high-recall candidates; your team filters for precision.
 
 const SEARCH_PHRASES = [
-  "AI layoffs",
-  "AI job cuts",
-  "AI job losses",
-  "artificial intelligence layoffs",
-  "artificial intelligence job cuts",
-  "replaced by AI",
-  "replaced by artificial intelligence",
-  "AI workforce reduction",
-  "automation layoffs",
-  "AI restructuring jobs",
-  "ChatGPT replacing jobs",
-  "generative AI job cuts",
-  "AI eliminated positions",
-  "AI downsizing",
-];
+  "AI layoffs",           // 2 words
+  "AI job cuts",          // 3 words
+  "AI job losses",        // 3 words
+  "replaced by AI",       // 3 words
+  "AI eliminated jobs",   // 3 words
+];                        // Total: 14 words (limit: 15)
 
 // High-quality sources to prioritize (Event Registry source URIs)
 // These get searched separately to ensure coverage from tier-1 outlets
