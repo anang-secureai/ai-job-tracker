@@ -51,7 +51,6 @@
   <!-- Counter hero — dark band with headline + number + pace -->
   <section class="counter-section" aria-labelledby="counter-heading">
     <div class="counter-inner">
-      <h2 class="counter-headline" id="heroHeadline">Loading...</h2>
       <div class="counter-grid">
         <div class="counter-left">
           <p class="counter-label" id="counter-heading">Total AI-linked job losses</p>
@@ -67,14 +66,6 @@
     </div>
   </section>
 
-  <!-- Stats strip -->
-  <section class="stats-section" aria-label="Regional breakdown">
-    <div class="stats-row">
-      <article class="stat-card"><h3>United States</h3><p id="usTotal">—</p></article>
-      <article class="stat-card"><h3>Outside U.S.</h3><p id="intlTotal">—</p></article>
-      <article class="stat-card"><h3>Reports</h3><p id="countedReports">—</p></article>
-    </div>
-  </section>
 
   <!-- Reports table -->
   <section class="reports-section">
@@ -86,12 +77,11 @@
       <div class="table-card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th scope="col">Company</th><th scope="col">Jobs lost</th><th scope="col">Industry</th><th scope="col">Running total</th><th scope="col">Workforce %</th><th scope="col">Stock Δ</th></tr></thead>
-            <tbody id="tableBody"><tr><td colspan="6" class="loading-state"><div class="spinner"></div><br/>Loading...</td></tr></tbody>
+            <thead><tr><th scope="col">Company</th><th scope="col">Jobs lost</th><th scope="col">Industry</th><th scope="col">Running total</th><th scope="col">Workforce %</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="5" class="loading-state"><div class="spinner"></div><br/>Loading...</td></tr></tbody>
           </table>
         </div>
         <div class="mobile-cards" id="mobileCards"><div class="loading-state"><div class="spinner"></div><br/>Loading...</div></div>
-        <p class="table-disclaimer">Stock data via Stooq daily close history. Figures are directional only and do not imply causation.</p>
       </div>
     </div>
   </section>
@@ -103,7 +93,6 @@
         <summary>Counting methodology</summary>
         <div class="method-body">
           <p><strong>Included:</strong> First-time layoffs where AI was a material factor — either explicitly cited by the company, or identified by credible reporting as a primary driver. <strong>Excluded:</strong> Restated totals, duplicate announcements, and layoffs attributed solely to non-AI factors.</p>
-          <p>Stock figures show change from announcement-day close to most recent close and <strong>do not imply the layoffs caused the stock movement</strong>.</p>
         </div>
       </details>
     </div>
@@ -146,7 +135,7 @@ async function boot() {
   } catch (e) {
     console.error(e);
     setText("heroHeadline", "Dashboard unavailable");
-    document.getElementById("tableBody").innerHTML = '<tr><td colspan="6" class="error-state">Failed to load data.</td></tr>';
+    document.getElementById("tableBody").innerHTML = '<tr><td colspan="5" class="error-state">Failed to load data.</td></tr>';
     document.getElementById("mobileCards").innerHTML = '<div class="error-state">Failed to load data.</div>';
   }
 }
@@ -155,17 +144,9 @@ function render(reports) {
   const since = reports.filter(r => parseDate(r.date) >= BASELINE);
   counted = since.filter(r => C_TYPES.has(r.lossType) && C_ATTR.has(r.aiAttribution));
   const total = counted.reduce((s, r) => s + n(r.jobsLost), 0);
-  const us = counted.filter(r => r.region === "US").reduce((s, r) => s + n(r.jobsLost), 0);
-  const intl = counted.filter(r => r.region !== "US").reduce((s, r) => s + n(r.jobsLost), 0);
 
   const dates = counted.map(r => parseDate(r.date)).sort((a, b) => a - b);
-  const earliest = dates[0] || new Date();
   const latest = dates[dates.length - 1] || new Date();
-  const daySpan = Math.max(1, Math.ceil((latest - earliest) / 86400000));
-
-  // Headline
-  const hlEl = document.getElementById("heroHeadline");
-  hlEl.innerHTML = `<span class="hl-number">${nf.format(total)}</span> jobs eliminated in ${nf.format(daySpan)} days`;
 
   // Pace
   buildPace(counted);
@@ -181,9 +162,6 @@ function render(reports) {
 
   // Animate
   animateCount("counterNumber", total, 2000);
-  animateCount("usTotal", us, 2000);
-  animateCount("intlTotal", intl, 2000);
-  animateCount("countedReports", counted.length, 1600);
 
   // Table
   const rows = buildRows(counted);
@@ -252,11 +230,6 @@ function isMajor(jobsLost, allRows) {
   return n(jobsLost) >= sorted[Math.max(0, Math.floor(sorted.length * 0.25) - 1)];
 }
 
-function stockPill(sd) {
-  const cls = sd == null ? "na" : sd >= 0 ? "pos" : "neg";
-  const txt = sd == null ? "n/a" : `${sd > 0 ? "+" : ""}${pf.format(sd)}%`;
-  return `<span class="stock-pill ${cls}">${esc(txt)}</span>`;
-}
 function attrTag(a) {
   const al = (a || "EXPLICIT").toLowerCase();
   const c = al === "explicit" ? "explicit" : al === "blamed" ? "blamed" : "mixed";
@@ -277,7 +250,7 @@ function srcLink(r) {
 
 function buildTable(body, rows) {
   body.innerHTML = "";
-  if (!rows.length) { body.innerHTML = '<tr><td colspan="6" class="loading-state">No reports yet.</td></tr>'; return; }
+  if (!rows.length) { body.innerHTML = '<tr><td colspan="5" class="loading-state">No reports yet.</td></tr>'; return; }
   rows.forEach(r => {
     const tr = document.createElement("tr");
     if (isMajor(r.jobsLost, rows)) tr.classList.add("major");
@@ -289,8 +262,7 @@ function buildTable(body, rows) {
       <td><span class="cell-jobs">${esc(jobs)}</span> ${attrTag(r.aiAttribution)}</td>
       <td>${esc(r.industry || "Unknown")}</td>
       <td>${nf.format(r.runningTotal)}</td>
-      <td>${pctPill(r)}<span class="cell-meta">${esc(wt)}</span></td>
-      <td>${stockPill(r.stockDeltaPct)}</td>`;
+      <td>${pctPill(r)}<span class="cell-meta">${esc(wt)}</span></td>`;
     body.appendChild(tr);
   });
 }
@@ -314,7 +286,6 @@ function buildCards(container, rows) {
         <div><div class="rc-label">Industry</div><div class="rc-value">${esc(r.industry || "Unknown")}</div></div>
         <div><div class="rc-label">Running total</div><div class="rc-value">${nf.format(r.runningTotal)}</div></div>
         <div><div class="rc-label">Workforce</div><div class="rc-value">${esc(wt)}</div></div>
-        <div><div class="rc-label">Stock Δ</div><div class="rc-value">${stockPill(r.stockDeltaPct)}</div></div>
         <div><div class="rc-label">Source</div><div class="rc-value">${srcLink(r)}</div></div>
       </div>`;
     container.appendChild(card);

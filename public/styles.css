@@ -292,12 +292,11 @@ tbody td {
   padding: 0.65rem 0.7rem; border-top: 1px solid var(--border-light);
   font-size: 0.86rem; color: var(--text); vertical-align: top; overflow-wrap: anywhere;
 }
-thead th:nth-child(1), tbody td:nth-child(1) { width: 28%; }
-thead th:nth-child(2), tbody td:nth-child(2) { width: 14%; }
-thead th:nth-child(3), tbody td:nth-child(3) { width: 16%; }
-thead th:nth-child(4), tbody td:nth-child(4) { width: 14%; }
-thead th:nth-child(5), tbody td:nth-child(5) { width: 14%; }
-thead th:nth-child(6), tbody td:nth-child(6) { width: 14%; }
+thead th:nth-child(1), tbody td:nth-child(1) { width: 30%; }
+thead th:nth-child(2), tbody td:nth-child(2) { width: 18%; }
+thead th:nth-child(3), tbody td:nth-child(3) { width: 18%; }
+thead th:nth-child(4), tbody td:nth-child(4) { width: 16%; }
+thead th:nth-child(5), tbody td:nth-child(5) { width: 18%; }
 tbody tr:nth-child(even) { background: var(--bg-warm); }
 
 /* Major layoff rows */
