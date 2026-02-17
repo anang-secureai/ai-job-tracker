@@ -126,7 +126,7 @@
       </div>
       <div class="cite-block">
         <h3>Report an error or suggest a source</h3>
-        <p>If you've identified an AI-linked layoff not reflected here, or found an error in our data, contact us at <a href="/cdn-cgi/l/email-protection#ef8c80819b8e8c9baf9c8a8c9a9d8a8e86818098c1809d88"><span class="__cf_email__" data-cfemail="24474b4a5045475064574147515641454d4a4b530a4b5643">[email&#160;protected]</span></a>.</p>
+        <p>If you've identified an AI-linked layoff not reflected here, or found an error in our data, contact us at <a id="contactLink"></a>.</p>
       </div>
     </div>
   </section>
@@ -141,7 +141,7 @@
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 const BASELINE = new Date(2025, 0, 1);
 const C_TYPES = new Set(["NEW"]);
 const C_ATTR = new Set(["EXPLICIT", "BLAMED", "MIXED"]);
@@ -213,6 +213,10 @@ function render(reports) {
   // Citation date
   const citeEl = document.getElementById("citeDate");
   if (citeEl) citeEl.textContent = dfmt(new Date());
+
+  // Contact link (built via JS to avoid Cloudflare email obfuscation)
+  const cl = document.getElementById("contactLink");
+  if (cl) { const e = ["contact","secureainow.org"].join("@"); cl.href = "mailto:" + e; cl.textContent = e; }
 }
 
 function buildPace(reps) {
@@ -452,4 +456,8 @@ function parseDate(v) {
 function n(v) { const x = Number(v); return isFinite(x) ? x : 0; }
 function esc(s) { return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
 function safeUrl(u) { if (!u) return ""; try { const p = new URL(u, location.href); return /^https?:$/.test(p.protocol) ? p.toString() : ""; } catch { return ""; } }
-function inferSrc(u) { if (!u) return "Source"; try { const h = new URL(u).hostname; if (h.includes("apnews")) return "AP"; if (h.includes("
+function inferSrc(u) { if (!u) return "Source"; try { const h = new URL(u).hostname; if (h.includes("apnews")) return "AP"; if (h.includes("cnbc")) return "CNBC"; if (h.includes("reuters")) return "Reuters"; return h.replace("www.", ""); } catch { return "Source"; } }
+function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+</script>
+</body>
+</html>
