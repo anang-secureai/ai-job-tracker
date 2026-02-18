@@ -229,7 +229,7 @@ async function deleteOldCandidates(daysOld = 60) {
 
 function formatCandidate(r) {
   return {
-    id: r.id,
+    id: parseInt(r.id),
     externalId: r.external_id,
     title: r.title,
     summary: r.summary,
@@ -245,7 +245,7 @@ function formatCandidate(r) {
 // Format DB row → clean JSON
 function formatRow(r) {
   return {
-    id: r.id,
+    id: parseInt(r.id),
     date: r.date instanceof Date ? r.date.toISOString().slice(0, 10) : String(r.date || "").slice(0, 10),
     company: r.company,
     industry: r.industry,
