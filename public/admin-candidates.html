@@ -161,12 +161,19 @@ function render(){
   $("list").innerHTML=items.map(c=>{
     const sc=c.status.toLowerCase();
     const pending=c.status==="PENDING";
-    return '<div class="card '+sc+'"><div class="card-top"><div><h3 class="card-title">'+esc(c.title)+'</h3><p class="card-meta">'+esc(c.sourceName)+' · '+dateFmt(c.publishedAt)+(c.sourceUrl?' · <a href="'+esc(c.sourceUrl)+'" target="_blank" rel="noopener">Read ↗</a>':'')+'</p></div><span class="tag '+sc+'">'+c.status+'</span></div>'+(c.summary?'<p class="card-summary">'+esc(c.summary)+'</p>':'')+(pending?'<div class="card-actions"><button class="btn btn-sm btn-primary" onclick="doApprove('+c.id+')">✓ Approve</button> <button class="btn btn-sm btn-danger" onclick="doReject('+c.id+')">✕ Reject</button></div>':'')+'</div>';
+    return '<div class="card '+sc+'"><div class="card-top"><div><h3 class="card-title">'+esc(c.title)+'</h3><p class="card-meta">'+esc(c.sourceName)+' · '+dateFmt(c.publishedAt)+(c.sourceUrl?' · <a href="'+esc(c.sourceUrl)+'" target="_blank" rel="noopener">Read ↗</a>':'')+'</p></div><span class="tag '+sc+'">'+c.status+'</span></div>'+(c.summary?'<p class="card-summary">'+esc(c.summary)+'</p>':'')+(pending?'<div class="card-actions"><button class="btn btn-sm btn-primary" data-action="approve" data-id="'+c.id+'">✓ Approve</button> <button class="btn btn-sm btn-danger" data-action="reject" data-id="'+c.id+'">✕ Reject</button></div>':'')+'</div>';
   }).join("");
 }
 
-/* Reject */
-window.doReject=async function(id){
+/* Event delegation for approve/reject buttons */
+$("list").addEventListener("click",function(e){
+  const btn=e.target.closest("[data-action]");if(!btn)return;
+  const id=parseInt(btn.dataset.id);const action=btn.dataset.action;
+  if(action==="reject"){doReject(id)}
+  else if(action==="approve"){doApprove(id)}
+});
+
+async function doReject(id){
   try{
     const r=await fetch("/api/admin/candidates/"+id+"/reject",{method:"POST",headers:{"Content-Type":"application/json"}});
     const d=await r.json();
@@ -180,7 +187,7 @@ window.doReject=async function(id){
       toast(d.error||"Reject failed",true);
     }
   }catch(e){console.error("Reject error:",e);toast("Reject failed",true)}
-};
+}
 
 /* Reject all */
 $("rejectAllBtn").addEventListener("click",async()=>{
@@ -215,7 +222,7 @@ $("scanBtn").addEventListener("click",async()=>{
 });
 
 /* Approve modal */
-window.doApprove=function(id){
+function doApprove(id){
   const c=candidates.find(x=>x.id===id);if(!c)return;
   $("aId").value=c.id;$("aSrcUrl").value=c.sourceUrl||"";$("aSrcLabel").value=c.sourceName||"";
   $("appSummary").textContent=c.title;
