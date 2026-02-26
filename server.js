@@ -310,6 +310,11 @@ app.get("/admin/candidates", (req, res) => {
   res.sendFile(path.join(__dirname, "public/admin-candidates.html"));
 });
 
+// Widget — served as iframe on secureainow.org
+app.get("/widget", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "widget.html"));
+});
+
 // ── Export for Vercel serverless; boot normally for local dev ─────────
 module.exports = app;
 
