@@ -20,13 +20,10 @@
 <!-- Dark header band -->
 <header class="site-header" role="banner">
   <div class="wrap">
-    <div class="header-left">
-      <div class="brand-logo logo-mask"
-           style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
-           role="img" aria-label="The Alliance for Secure AI"></div>
-      <h1 class="site-title">AI Job Loss Tracker</h1>
-    </div>
-    <p class="header-updated" id="lastUpdated"></p>
+    <div class="brand-logo logo-mask"
+         style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
+         role="img" aria-label="The Alliance for Secure AI"></div>
+    <h1 class="site-title">AI Job Loss Tracker</h1>
   </div>
 </header>
 
@@ -186,8 +183,7 @@ function render(reports) {
   buildPace(counted);
 
   // Meta
-  setText("asOfText", `Latest report: ${counted.length ? dfmt(latest) : "none yet"}`);
-  setText("lastUpdated", `Updated ${counted.length ? dfmt(latest) : "—"} · ${counted.length} reports`);
+  setText("asOfText", `Updated ${counted.length ? dfmt(latest) : "—"} · ${counted.length} reports`);
   setText("tableBadge", `${counted.length} reports`);
 
   // Chart
