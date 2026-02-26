@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Job Loss Tracker — Widget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Libre Franklin', sans-serif;
+      background: #0f1f0e;
+      color: #f0f4ef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .widget {
+      background: #162614;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    .widget-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(240,244,239,0.45);
+      margin-bottom: 0.5rem;
+    }
+
+    .widget-total {
+      font-size: 2.6rem;
+      font-weight: 900;
+      line-height: 1;
+      color: #f0f4ef;
+      letter-spacing: -0.02em;
+    }
+
+    .widget-asof {
+      font-size: 0.7rem;
+      color: rgba(240,244,239,0.4);
+      margin-top: 0.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .widget-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 0.9rem;
+    }
+
+    .pace-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(240,244,239,0.45);
+      margin-bottom: 0.25rem;
+    }
+
+    .pace-number {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #f0f4ef;
+      line-height: 1.1;
+    }
+
+    .pace-arrow.up   { color: #e05252; }
+    .pace-arrow.down { color: #5cb85c; }
+    .pace-arrow.flat { color: rgba(240,244,239,0.5); }
+
+    .pace-delta {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(240,244,239,0.5);
+      margin-top: 0.2rem;
+    }
+
+    .widget-link {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.65rem;
+      color: rgba(240,244,239,0.3);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+    }
+    .widget-link:hover { color: rgba(240,244,239,0.6); }
+
+    .loading { opacity: 0.4; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+<div class="widget">
+  <p class="widget-eyebrow">AI-linked job losses since Jan 2025</p>
+  <div class="widget-total" id="wTotal"><span class="loading">Loading…</span></div>
+  <p class="widget-asof" id="wAsof"></p>
+  <hr class="widget-divider" />
+  <p class="pace-label">Last 30 days</p>
+  <p class="pace-number" id="wPaceNum">—</p>
+  <p class="pace-delta" id="wPaceDelta"></p>
+  <a class="widget-link" href="https://jobloss.ai" target="_blank" rel="noopener">jobloss.ai ↗</a>
+</div>
+
+<script>
+const BASELINE = new Date(2025, 0, 1);
+const C_ATTR   = new Set(["EXPLICIT", "BLAMED", "MIXED"]);
+const nf = new Intl.NumberFormat("en-US");
+const dfmt = d => new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(d);
+
+(async () => {
+  try {
+    const res = await fetch("/api/reports");
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+
+    const counted = data.reports.filter(r => {
+      const d = parseDate(r.date);
+      return d >= BASELINE && C_ATTR.has(r.aiAttribution);
+    });
+
+    const total = counted.reduce((s, r) => s + n(r.jobsLost), 0);
+
+    const sortedDates = counted.map(r => parseDate(r.date)).sort((a, b) => b - a);
+    const latest = sortedDates[0] || new Date();
+
+    // Rolling 30-day window — same logic as main page
+    const MS_30 = 30 * 24 * 60 * 60 * 1000;
+    const windowStart = new Date(latest.getTime() - MS_30);
+    const prevStart   = new Date(windowStart.getTime() - MS_30);
+
+    let thisTotal = 0, prevTotal = 0;
+    counted.forEach(r => {
+      const d = parseDate(r.date);
+      if (d >= windowStart && d <= latest)    thisTotal += n(r.jobsLost);
+      if (d >= prevStart   && d < windowStart) prevTotal += n(r.jobsLost);
+    });
+
+    // Render total
+    document.getElementById("wTotal").textContent = nf.format(total);
+    document.getElementById("wAsof").textContent =
+      `Updated ${counted.length ? dfmt(latest) : "—"} · ${counted.length} reports`;
+
+    // Render pace
+    const paceEl  = document.getElementById("wPaceNum");
+    const deltaEl = document.getElementById("wPaceDelta");
+
+    if (prevTotal > 0) {
+      const change = ((thisTotal - prevTotal) / prevTotal) * 100;
+      const arrow  = change > 5 ? "▲" : change < -5 ? "▼" : "—";
+      const cls    = change > 5 ? "up" : change < -5 ? "down" : "flat";
+      paceEl.innerHTML  = `<span class="pace-arrow ${cls}">${arrow}</span> ${nf.format(thisTotal)}`;
+      deltaEl.textContent = `${change > 0 ? "+" : ""}${Math.round(change)}% vs prior 30 days`;
+    } else if (thisTotal > 0) {
+      paceEl.textContent  = nf.format(thisTotal);
+      deltaEl.textContent = "No prior period data";
+    } else {
+      paceEl.textContent  = "—";
+      deltaEl.textContent = "No recent reports";
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById("wTotal").textContent = "—";
+    document.getElementById("wAsof").textContent  = "Failed to load";
+  }
+})();
+
+function parseDate(v) {
+  if (typeof v === "string") {
+    const m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  }
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? BASELINE : d;
+}
+function n(v) { const x = Number(v); return isFinite(x) ? x : 0; }
+</script>
+</body>
+</html>
