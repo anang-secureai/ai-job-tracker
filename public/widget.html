@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Loss Tracker — Widget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/* ══════════════════════════════════════════════════════════
+   Design tokens — exact match to jobloss.ai / styles.css
+══════════════════════════════════════════════════════════ */
+:root {
+  --seaweed:          #192d17;
+  --seaweed-mid:      #2a4a26;
+  --gamboge:          #c07f10;
+  --gamboge-light:    #e4991b;
+  --gamboge-bg:       #fef8ed;
+  --green:            #3d6b35;
+  --green-light:      #709663;
+  --green-bg:         #f0f5ee;
+  --green-bg-alt:     #e5ede2;
+  --bg:               #ffffff;
+  --bg-warm:          #faf8f5;
+  --bg-cool:          #f3f6f2;
+  --text:             #1a2118;
+  --text-mid:         #4a5648;
+  --text-dim:         #6b7a64;
+  --text-on-dark:     #f3f7f1;
+  --text-on-dark-mid: #b8c8b1;
+  --border:           #d4ddd0;
+  --border-light:     #e8ede5;
+  --shadow-sm:        0 1px 3px rgba(25,45,23,0.08);
+  --shadow-md:        0 4px 12px rgba(25,45,23,0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* No scrollbars — this is an iframe */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Libre Franklin", "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg);
+}
+
+/* ══════════════════════════════════════════════════════════
+   WIDGET LAYOUT
+══════════════════════════════════════════════════════════ */
+.widget {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Header — centered stacked layout ── */
+.w-header {
+  background: linear-gradient(135deg, var(--seaweed) 0%, #1e3a1a 100%);
+  padding: 1rem 1.25rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+/* Logo mask */
+.w-logo {
+  display: block;
+  width: clamp(110px, 28vw, 160px);
+  aspect-ratio: 1600/583;
+  background: var(--text-on-dark);
+  -webkit-mask: url(/assets/the-alliance-logo-white-1600.png) no-repeat center / contain;
+  mask: url(/assets/the-alliance-logo-white-1600.png) no-repeat center / contain;
+  -webkit-mask-mode: luminance;
+  mask-mode: luminance;
+}
+
+/* Tracker title — centered, prominent */
+.w-title {
+  font-size: clamp(1rem, 3.5vw, 1.3rem);
+  font-weight: 900;
+  color: var(--text-on-dark);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+/* Live indicator — subtle, below title */
+.w-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-mid);
+}
+.w-live .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gamboge-light);
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(228,153,27,0.5); }
+  50%      { opacity: 0.75; box-shadow: 0 0 0 4px rgba(228,153,27,0); }
+}
+
+/* ── Counter band — .counter-section match ── */
+.w-counter {
+  background: var(--seaweed);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.counter-label {
+  font-size: 0.62rem;
+  color: var(--text-on-dark-mid);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.counter-number {
+  font-size: clamp(1.9rem, 6vw, 2.8rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--text-on-dark);
+  line-height: 1;
+  margin-top: 0.1rem;
+}
+.counter-asof {
+  font-size: 0.6rem;
+  color: var(--text-on-dark-mid);
+  margin-top: 0.18rem;
+}
+
+/* .pace-box match */
+.pace-box {
+  text-align: right;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+.pace-label {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-on-dark-mid);
+  font-weight: 700;
+}
+.pace-number {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-on-dark);
+  line-height: 1.15;
+  margin-top: 0.1rem;
+}
+.pace-delta { font-size: 0.6rem; color: var(--text-on-dark-mid); margin-top: 0.08rem; }
+.pace-arrow.up   { color: #ffa0a0; }
+.pace-arrow.down { color: #a0e0a0; }
+.pace-arrow.flat { color: var(--text-on-dark-mid); }
+
+/* ── Stat chips row ── */
+.w-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+  flex-shrink: 0;
+}
+
+.stat-chip {
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--bg);
+  padding: 0.55rem 0.65rem;
+  box-shadow: var(--shadow-sm);
+}
+.stat-chip-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin-bottom: 0.2rem;
+}
+.stat-chip-value {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--seaweed);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-chip-value.gamboge { color: var(--gamboge); }
+.stat-chip-value.green   { color: var(--green); }
+.stat-chip-sub {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  margin-top: 0.18rem;
+}
+
+/* ── Sparkline + recent — scrollable middle section ── */
+.w-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.65rem 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 0;
+}
+
+/* Sparkline card */
+.spark-card {
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: var(--bg);
+  padding: 0.65rem 0.75rem 0.55rem;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.spark-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+}
+canvas#sparkline {
+  display: block;
+  width: 100%;
+  height: 56px;
+}
+.spark-summary {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+}
+
+/* Recent reports */
+.recent-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.recent-head h3 { font-size: 0.82rem; font-weight: 800; color: var(--seaweed); }
+.recent-head .count-badge { font-size: 0.65rem; color: var(--text-dim); font-weight: 600; }
+
+/* Report rows */
+.report-row {
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--bg);
+  padding: 0.6rem 0.75rem;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.report-row.major {
+  background: var(--gamboge-bg);
+  border-color: #e8d5aa;
+  border-left: 3px solid var(--gamboge-light);
+  padding-left: calc(0.75rem - 2px);
+}
+.rr-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.rr-company {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--seaweed);
+}
+.rr-jobs {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.report-row.major .rr-jobs { color: var(--gamboge); }
+.rr-meta {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-top: 0.12rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* .attr-tag exact match */
+.attr-tag {
+  display: inline-block;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.38rem;
+  border-radius: 999px;
+}
+.attr-tag.explicit { background: #e6f4e6; color: #1a5c1a; border: 1px solid #b8dbb8; }
+.attr-tag.blamed   { background: var(--gamboge-bg); color: #7a5a0a; border: 1px solid #e8d5aa; }
+.attr-tag.mixed    { background: var(--bg-cool); color: var(--text-mid); border: 1px solid var(--border); }
+
+/* .source-link exact match */
+.source-link {
+  color: var(--green);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(61,107,53,0.3);
+}
+.source-link:hover { color: var(--seaweed); border-bottom-color: var(--seaweed); }
+
+/* ── Footer CTA ── */
+.w-footer {
+  padding: 0.65rem 1rem;
+  background: var(--green-bg);
+  border-top: 1px solid var(--green-bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+.w-footer-note {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.w-footer-note strong { color: var(--text-mid); }
+
+/* CTA — gamboge: warm, on-brand, readable, not aggressive */
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 0.45rem;
+  border: 1px solid var(--gamboge);
+  background: var(--gamboge-bg);
+  color: var(--gamboge);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.cta-btn:hover {
+  background: var(--gamboge);
+  color: #fff;
+  border-color: var(--gamboge);
+}
+.cta-btn svg { width: 11px; height: 11px; }
+
+/* Loading / error */
+.state-msg {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+.state-msg.error { color: #b03a2e; }
+.spinner {
+  display: inline-block;
+  width: 1.1rem; height: 1.1rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--gamboge-light);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 0.3rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive — fluid across all sizes ── */
+@media (max-width: 600px) {
+  .w-counter { flex-direction: column; align-items: flex-start; gap: 0.65rem; }
+  .pace-box { text-align: left; min-width: auto; width: 100%; }
+  .w-stats { gap: 0.35rem; }
+  .stat-chip { padding: 0.45rem 0.5rem; }
+  .stat-chip-value { font-size: 1rem; }
+  .stat-chip-label { font-size: 0.54rem; }
+  .w-body { padding: 0.55rem 0.75rem 0; gap: 0.5rem; }
+  .w-footer { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .cta-btn { width: 100%; justify-content: center; }
+  .rr-company { font-size: 0.82rem; }
+}
+
+@media (max-width: 380px) {
+  .w-header { padding: 0.75rem 0.85rem 0.7rem; }
+  .w-counter { padding: 0.7rem 0.85rem; }
+  .counter-number { font-size: 1.7rem; }
+  .w-stats { gap: 0.25rem; }
+  .stat-chip-value { font-size: 0.9rem; }
+  .w-body { padding: 0.5rem 0.65rem 0; }
+  .report-row { padding: 0.5rem 0.6rem; }
+}
+
+@media (min-width: 601px) and (max-width: 860px) {
+  .counter-number { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="widget">
+
+  <!-- Header -->
+  <div class="w-header">
+    <div class="w-logo" role="img" aria-label="The Alliance for Secure AI"></div>
+    <div class="w-title">AI Job Loss Tracker</div>
+    <div class="w-live">
+      <span class="dot" aria-hidden="true"></span>
+      Updated daily
+    </div>
+  </div>
+
+  <!-- Counter -->
+  <div class="w-counter" aria-labelledby="wCounterLabel">
+    <div>
+      <p class="counter-label" id="wCounterLabel">Total AI-linked job losses</p>
+      <div class="counter-number" id="wTotal" aria-live="polite">—</div>
+      <p class="counter-asof" id="wAsOf"></p>
+    </div>
+    <div class="pace-box">
+      <p class="pace-label">This month's pace</p>
+      <p class="pace-number" id="wPace">—</p>
+      <p class="pace-delta" id="wDelta"></p>
+    </div>
+  </div>
+
+  <!-- Stat chips -->
+  <div class="w-stats" id="wStats">
+    <div class="stat-chip">
+      <div class="stat-chip-label">Reports tracked</div>
+      <div class="stat-chip-value" id="sReports">—</div>
+      <div class="stat-chip-sub">since Jan 2025</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-label">Explicit AI cited</div>
+      <div class="stat-chip-value gamboge" id="sExplicit">—</div>
+      <div class="stat-chip-sub">of all reports</div>
+    </div>
+    <div class="stat-chip">
+      <div class="stat-chip-label">This quarter</div>
+      <div class="stat-chip-value green" id="sQuarter">—</div>
+      <div class="stat-chip-sub">jobs affected</div>
+    </div>
+  </div>
+
+  <!-- Scrollable body: sparkline + recent reports -->
+  <div class="w-body" id="wBody">
+    <div class="state-msg" id="wLoading">
+      <div class="spinner"></div><br>Loading…
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="w-footer">
+    <p class="w-footer-note">
+      <strong>Alliance for Secure AI</strong><br>
+      Editorially reviewed · Updated daily
+    </p>
+    <!--
+      Replace href with your actual dashboard URL, e.g. https://jobloss.ai
+      This can also be set dynamically — see JS below.
+    -->
+    <a href="https://jobloss.ai" class="cta-btn" id="wCta" target="_blank" rel="noopener noreferrer">
+      Full dashboard
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   Widget — served by Railway at /widget
+   Fetches /api/reports (same origin — no CORS needed)
+   Renders: counter, pace, 3 stat chips, sparkline, top reports
+══════════════════════════════════════════════════════════ */
+
+const BASELINE = new Date(2025, 0, 1);
+const C_TYPES  = new Set(["NEW"]);
+const C_ATTR   = new Set(["EXPLICIT", "BLAMED", "MIXED"]);
+const MAX_ROWS = 5;
+
+const nf   = new Intl.NumberFormat("en-US");
+const cf   = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+const pf   = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+const mtk  = new Intl.DateTimeFormat("en-US", { month: "short" });
+const dfmt = d => new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(d);
+
+boot();
+
+async function boot() {
+  try {
+    // Same-origin fetch — works because this file IS served by the Railway app
+    const res = await fetch("/api/reports");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) throw new Error(`Not JSON (${ct})`);
+    const d = await res.json();
+    if (!d.ok) throw new Error(d.error || "API error");
+    render(d.reports);
+  } catch (e) {
+    console.error("[widget]", e);
+    document.getElementById("wLoading").className = "state-msg error";
+    document.getElementById("wLoading").innerHTML = `Failed to load — ${esc(e.message)}`;
+  }
+}
+
+function render(reports) {
+  /* ── Filter — same rules as index.html ── */
+  const since   = reports.filter(r => parseDate(r.date) >= BASELINE);
+  const counted = since.filter(r => C_TYPES.has(r.lossType) && C_ATTR.has(r.aiAttribution));
+
+  if (!counted.length) {
+    document.getElementById("wLoading").textContent = "No reports yet.";
+    return;
+  }
+
+  const total = counted.reduce((s, r) => s + n(r.jobsLost), 0);
+
+  /* ── Counter ── */
+  animateCount("wTotal", total, 1400);
+  const dates  = counted.map(r => parseDate(r.date)).sort((a, b) => a - b);
+  const latest = dates[dates.length - 1];
+  setText("wAsOf",
+    `As of ${dfmt(new Date())} · Latest: ${dfmt(latest)}`
+  );
+
+  /* ── Pace ── */
+  const now   = new Date();
+  const thisM = now.getMonth(), thisY = now.getFullYear();
+  const lastM = thisM === 0 ? 11 : thisM - 1;
+  const lastY = thisM === 0 ? thisY - 1 : thisY;
+  let thisTotal = 0, lastTotal = 0;
+  counted.forEach(r => {
+    const d = parseDate(r.date);
+    if (d.getMonth() === thisM && d.getFullYear() === thisY) thisTotal += n(r.jobsLost);
+    if (d.getMonth() === lastM && d.getFullYear() === lastY) lastTotal += n(r.jobsLost);
+  });
+  const paceEl  = document.getElementById("wPace");
+  const deltaEl = document.getElementById("wDelta");
+  if (lastTotal > 0) {
+    const chg   = ((thisTotal - lastTotal) / lastTotal) * 100;
+    const arrow = chg > 5 ? "▲" : chg < -5 ? "▼" : "—";
+    const cls   = chg > 5 ? "up" : chg < -5 ? "down" : "flat";
+    paceEl.innerHTML    = `<span class="pace-arrow ${cls}">${arrow}</span> ${nf.format(thisTotal)}`;
+    deltaEl.textContent = `${chg > 0 ? "+" : ""}${Math.round(chg)}% vs ${mtk.format(new Date(lastY, lastM))}`;
+  } else if (thisTotal > 0) {
+    paceEl.textContent  = nf.format(thisTotal);
+    deltaEl.textContent = "No prior-month data";
+  } else {
+    paceEl.textContent  = "—";
+    deltaEl.textContent = "No reports this month yet";
+  }
+
+  /* ── Stat chips ── */
+  setText("sReports", counted.length);
+
+  const explicitCount = counted.filter(r => r.aiAttribution === "EXPLICIT").length;
+  setText("sExplicit", `${pf.format((explicitCount / counted.length) * 100)}%`);
+
+  // This quarter = current quarter (Q1=Jan-Mar, Q2=Apr-Jun, etc.)
+  const qStart = new Date(thisY, Math.floor(thisM / 3) * 3, 1);
+  const qTotal = counted
+    .filter(r => parseDate(r.date) >= qStart)
+    .reduce((s, r) => s + n(r.jobsLost), 0);
+  setText("sQuarter", cf.format(qTotal) || "0");
+
+  /* ── Build sparkline + reports into body ── */
+  const body = document.getElementById("wBody");
+  body.innerHTML = "";  // clear loading msg
+
+  // Sparkline card
+  const sparkCard = document.createElement("div");
+  sparkCard.className = "spark-card";
+  sparkCard.innerHTML = `
+    <div class="spark-label">Cumulative job losses by month</div>
+    <canvas id="sparkline" role="img" aria-label="Cumulative job losses sparkline"></canvas>
+    <div class="spark-summary" id="sparkSummary"></div>
+  `;
+  body.appendChild(sparkCard);
+
+  // Recent reports heading
+  const rHead = document.createElement("div");
+  rHead.className = "recent-head";
+
+  const sorted = [...counted].sort((a, b) => parseDate(b.date) - parseDate(a.date));
+  rHead.innerHTML = `<h3>Recent reports</h3><span class="count-badge">${counted.length} total</span>`;
+  body.appendChild(rHead);
+
+  // Major threshold — mirrors isMajor() from index.html
+  const allJobs  = counted.map(r => n(r.jobsLost)).sort((a, b) => b - a);
+  const majorCut = counted.length >= 4
+    ? allJobs[Math.max(0, Math.floor(allJobs.length * 0.25) - 1)]
+    : 5000;
+
+  // Top MAX_ROWS rows
+  sorted.slice(0, MAX_ROWS).forEach(r => {
+    const isMajor = n(r.jobsLost) >= majorCut;
+    const attrCls = (r.aiAttribution || "EXPLICIT").toLowerCase();
+    const jobs    = `${r.estimate ? "~" : ""}${nf.format(n(r.jobsLost))}`;
+    const su      = safeUrl(r.sourceUrl);
+    const sl      = esc(r.sourceLabel || inferSrc(r.sourceUrl));
+    const srcHtml = su
+      ? `<a class="source-link" href="${su}" target="_blank" rel="noopener">${sl} ↗</a>`
+      : "";
+
+    const row = document.createElement("div");
+    row.className = "report-row" + (isMajor ? " major" : "");
+    row.innerHTML = `
+      <div class="rr-top">
+        <span class="rr-company">${esc(r.company)}</span>
+        <span class="rr-jobs">${esc(jobs)}</span>
+      </div>
+      <div class="rr-meta">
+        <span class="attr-tag ${attrCls}">${esc(attrCls)}</span>
+        <span>${esc(dfmt(parseDate(r.date)))} · ${esc(r.industry || "Unknown")}</span>
+        ${srcHtml}
+      </div>
+    `;
+    body.appendChild(row);
+  });
+
+  // Draw sparkline after DOM is ready
+  requestAnimationFrame(() => drawSparkline(counted));
+}
+
+/* ── Sparkline — mirrors renderChart() palette from index.html ── */
+function drawSparkline(reps) {
+  const canvas = document.getElementById("sparkline");
+  if (!canvas) return;
+
+  // Group by month
+  const bm = new Map();
+  reps.forEach(r => {
+    const d = parseDate(r.date);
+    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    bm.set(k, (bm.get(k) || 0) + n(r.jobsLost));
+  });
+  const keys = [...bm.keys()].sort();
+  let cum = 0;
+  const pts = keys.map(k => {
+    cum += bm.get(k);
+    const [y, mo] = k.split("-").map(Number);
+    return { date: new Date(y, mo-1, 1), total: cum };
+  });
+  if (!pts.length) return;
+
+  const dpr  = devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, rect.width, rect.height);
+
+  const W = rect.width, H = rect.height;
+  const pad = { top: 6, right: 8, bottom: 18, left: 38 };
+  const w = W - pad.left - pad.right;
+  const h = H - pad.top - pad.bottom;
+  const mx  = Math.max(...pts.map(p => p.total)) * 1.1;
+  const xS  = i => pad.left + (pts.length === 1 ? w/2 : (i / (pts.length-1)) * w);
+  const yS  = v => pad.top + h - (v / mx) * h;
+
+  // Grid lines (2)
+  [0, 1].forEach(i => {
+    const yy = pad.top + (i/2)*h;
+    ctx.strokeStyle = "rgba(25,45,23,0.07)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(pad.left+w, yy); ctx.stroke();
+  });
+
+  // Y axis labels
+  const cf2 = new Intl.NumberFormat("en-US", { notation:"compact", maximumFractionDigits:1 });
+  ctx.font = "600 9px 'Libre Franklin',sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillStyle = "rgba(25,45,23,0.35)";
+  ctx.fillText(cf2.format(mx), pad.left-4, pad.top+5);
+  ctx.fillText("0", pad.left-4, pad.top+h+4);
+
+  // X axis month labels
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(25,45,23,0.32)";
+  ctx.font = "600 8.5px 'Libre Franklin',sans-serif";
+  pts.forEach((p, i) => {
+    ctx.fillText(mtk.format(p.date), xS(i), H-2);
+  });
+
+  // Area fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top+h);
+  grad.addColorStop(0, "rgba(61,107,53,0.16)");
+  grad.addColorStop(1, "rgba(61,107,53,0.02)");
+  ctx.beginPath();
+  ctx.moveTo(xS(0), yS(0));
+  pts.forEach((p,i) => ctx.lineTo(xS(i), yS(p.total)));
+  ctx.lineTo(xS(pts.length-1), yS(0));
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  pts.forEach((p,i) => { i === 0 ? ctx.moveTo(xS(i), yS(p.total)) : ctx.lineTo(xS(i), yS(p.total)); });
+  ctx.strokeStyle = "#3d6b35";
+  ctx.lineWidth = 2;
+  ctx.lineJoin = "round";
+  ctx.stroke();
+
+  // Dots
+  pts.forEach((p, i) => {
+    ctx.beginPath(); ctx.arc(xS(i), yS(p.total), 3, 0, Math.PI*2);
+    ctx.fillStyle = "#3d6b35"; ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  // Summary text
+  const last = pts[pts.length-1];
+  const ml = new Intl.DateTimeFormat("en-US", { month:"short", year:"numeric" });
+  const sumEl = document.getElementById("sparkSummary");
+  if (sumEl) sumEl.textContent = `${nf.format(last.total)} cumulative through ${ml.format(last.date)}`;
+}
+
+/* ── animateCount — exact copy from index.html ── */
+function animateCount(id, target, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (target === 0) { el.textContent = "0"; return; }
+  const t0   = performance.now();
+  const ease = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    el.textContent = nf.format(Math.floor(target * ease(p)));
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = nf.format(target);
+  })(performance.now());
+}
+
+/* ── Utils — mirrors index.html ── */
+function parseDate(v) {
+  if (typeof v === "string") {
+    let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return new Date(+m[3], +m[1]-1, +m[2]);
+  }
+  const d = new Date(v); return isNaN(d.getTime()) ? BASELINE : d;
+}
+function n(v)   { const x = Number(v); return isFinite(x) ? x : 0; }
+function esc(s) {
+  return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function safeUrl(u) {
+  if (!u) return "";
+  try { const p = new URL(u, location.href); return /^https?:$/.test(p.protocol) ? p.toString() : ""; }
+  catch { return ""; }
+}
+function inferSrc(u) {
+  if (!u) return "Source";
+  try {
+    const h = new URL(u).hostname;
+    if (h.includes("apnews"))  return "AP";
+    if (h.includes("cnbc"))    return "CNBC";
+    if (h.includes("reuters")) return "Reuters";
+    return h.replace("www.", "");
+  } catch { return "Source"; }
+}
+function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+</script>
+</body>
+</html>
