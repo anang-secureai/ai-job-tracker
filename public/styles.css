@@ -137,17 +137,10 @@ body {
   width: min(1100px, 92vw); margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
 }
-.header-left {
-  display: flex; align-items: center; gap: 0.75rem;
-}
 .brand-logo { display: block; width: min(140px, 30vw); height: auto; aspect-ratio: 1600/583; flex-shrink: 0; }
 .site-title {
   margin: 0; font-size: clamp(0.9rem, 2vw, 1.2rem);
   font-weight: 800; color: #f3f7f1; letter-spacing: -0.01em; line-height: 1.1;
-}
-.header-updated {
-  margin: 0; font-size: 0.68rem; font-weight: 700;
-  color: var(--gamboge-light); white-space: nowrap; text-align: right; flex-shrink: 0;
 }
 
 /* ── Counter section — dark band, first in main ─── */
