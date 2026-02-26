@@ -16,23 +16,23 @@ let cron;
 try { cron = require("node-cron"); } catch { cron = null; }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // ── Config validation ────────────────────────────────────────────────
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 if (!ADMIN_PASSWORD) {
-  console.error("[FATAL] ADMIN_PASSWORD environment variable is required.");
-  process.exit(1);
+  console.error("[WARN] ADMIN_PASSWORD is not set — admin login will be disabled.");
 }
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "change-me-in-production-" + Math.random();
 
 // Hash password at startup (so we never compare plaintext)
 let passwordHash;
-(async () => {
-  passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-})();
+if (ADMIN_PASSWORD) {
+  (async () => {
+    passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  })();
+}
 
 // ── Middleware ────────────────────────────────────────────────────────
 
@@ -68,6 +68,44 @@ app.use(session({
     sameSite: "lax",
   },
 }));
+
+// ── Lazy database init — runs once per cold start ────────────────────
+let _initPromise = null;
+
+function ensureInit() {
+  if (!_initPromise) {
+    _initPromise = (async () => {
+      await db.migrate();
+      const { rows } = await db.pool.query("SELECT COUNT(*) AS cnt FROM reports");
+      if (parseInt(rows[0].cnt) === 0) {
+        console.log("[server] Empty database — importing starter data...");
+        try {
+          const seed = require("./seed-data");
+          for (const row of seed) {
+            await db.createReport(row);
+          }
+          console.log(`[server] Seeded ${seed.length} reports`);
+        } catch (e) {
+          console.log("[server] No seed-data.js found, starting empty:", e.message);
+        }
+      }
+    })().catch(err => {
+      _initPromise = null; // allow retry on next request
+      throw err;
+    });
+  }
+  return _initPromise;
+}
+
+app.use(async (req, res, next) => {
+  try {
+    await ensureInit();
+    next();
+  } catch (err) {
+    console.error("[init] Database initialization failed:", err);
+    res.status(503).json({ error: "Service temporarily unavailable" });
+  }
+});
 
 // ── Static files ─────────────────────────────────────────────────────
 
@@ -272,27 +310,12 @@ app.get("/admin/candidates", (req, res) => {
   res.sendFile(path.join(__dirname, "public/admin-candidates.html"));
 });
 
-// ── Boot ─────────────────────────────────────────────────────────────
+// ── Export for Vercel serverless; boot normally for local dev ─────────
+module.exports = app;
 
-async function start() {
-  try {
-    await db.migrate();
-
-    // Auto-seed on first boot if database is empty
-    const { rows } = await db.pool.query("SELECT COUNT(*) AS cnt FROM reports");
-    if (parseInt(rows[0].cnt) === 0) {
-      console.log("[server] Empty database detected — importing starter data...");
-      try {
-        const seed = require("./seed-data");
-        for (const row of seed) {
-          await db.createReport(row);
-        }
-        console.log(`[server] Seeded ${seed.length} reports`);
-      } catch (e) {
-        console.log("[server] No seed-data.js found or seed failed, starting empty:", e.message);
-      }
-    }
-
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  ensureInit().then(() => {
     app.listen(PORT, () => {
       console.log(`[server] Running on port ${PORT}`);
       console.log(`[server] Dashboard: http://localhost:${PORT}`);
@@ -305,7 +328,6 @@ async function start() {
           try {
             const result = await er.fetchCandidates(2);
             console.log(`[cron] Done: ${result.added} new, ${result.skipped} dupes`);
-            // Clean up old rejected candidates monthly
             const cleaned = await db.deleteOldCandidates(60);
             if (cleaned) console.log(`[cron] Cleaned ${cleaned} old rejected candidates`);
           } catch (e) {
@@ -317,10 +339,8 @@ async function start() {
         console.log("[server] EVENT_REGISTRY_API_KEY not set — candidate scanning disabled");
       }
     });
-  } catch (err) {
+  }).catch(err => {
     console.error("[FATAL] Startup failed:", err);
     process.exit(1);
-  }
+  });
 }
-
-start();
