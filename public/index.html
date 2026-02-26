@@ -17,13 +17,33 @@
 </head>
 <body class="dash-body">
 
-<!-- Dark header band — matches corporate site -->
+<!-- Unified hero header — brand + live stats in one dark band -->
 <header class="site-header" role="banner">
-  <div class="wrap">
-    <div class="brand-logo logo-mask"
-         style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
-         role="img" aria-label="The Alliance for Secure AI"></div>
-    <div class="brand-badge"><span class="dot" aria-hidden="true"></span> AI Job Loss Tracker</div>
+  <div class="header-wrap">
+    <!-- Brand row: logo + title + last-updated -->
+    <div class="header-brand-row">
+      <div class="header-brand">
+        <div class="brand-logo logo-mask"
+             style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
+             role="img" aria-label="The Alliance for Secure AI"></div>
+        <div class="brand-divider" aria-hidden="true"></div>
+        <h1 class="site-title">AI Job Loss Tracker</h1>
+      </div>
+      <p class="header-updated" id="lastUpdated"></p>
+    </div>
+    <!-- Stats row: total + pace -->
+    <div class="header-stats-row">
+      <div class="header-stat-primary">
+        <p class="header-stat-label">Total AI-linked job losses</p>
+        <div class="header-stat-number" id="counterNumber" aria-live="polite">0</div>
+        <p class="header-stat-asof" id="asOfText"></p>
+      </div>
+      <div class="pace-box" id="paceBox">
+        <p class="pace-label">Last 30 days</p>
+        <p class="pace-number" id="paceNumber">—</p>
+        <p class="pace-delta" id="paceDelta"></p>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -34,9 +54,8 @@
       <div class="hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">U.S. + Global Monitor</p>
-          <h1>AI-linked job losses since early 2025</h1>
+          <h2 class="hero-h2">AI-linked job losses since early 2025</h2>
           <p class="subtitle">Newly reported layoffs where AI is either explicitly cited or credibly blamed as a material factor. Reporting window starts January&nbsp;1,&nbsp;2025.</p>
-          <p class="last-updated" id="lastUpdated"></p>
         </div>
         <aside class="trend-panel" aria-labelledby="trendHeading">
           <p class="trend-kicker">Trendline</p>
@@ -47,25 +66,6 @@
       </div>
     </div>
   </section>
-
-  <!-- Counter hero — dark band with headline + number + pace -->
-  <section class="counter-section" aria-labelledby="counter-heading">
-    <div class="counter-inner">
-      <div class="counter-grid">
-        <div class="counter-left">
-          <p class="counter-label" id="counter-heading">Total AI-linked job losses</p>
-          <div class="counter-number" id="counterNumber" aria-live="polite">0</div>
-          <p class="counter-asof" id="asOfText"></p>
-        </div>
-        <div class="pace-box" id="paceBox">
-          <p class="pace-label">This month's pace</p>
-          <p class="pace-number" id="paceNumber">—</p>
-          <p class="pace-delta" id="paceDelta"></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
 
   <!-- Reports table -->
   <section class="reports-section">
@@ -185,7 +185,7 @@ function render(reports) {
   buildPace(counted);
 
   // Meta
-  setText("asOfText", `As of ${dfmt(new Date())} · Latest report: ${counted.length ? dfmt(latest) : "none yet"}`);
+  setText("asOfText", `Latest report: ${counted.length ? dfmt(latest) : "none yet"}`);
   setText("lastUpdated", `Updated ${counted.length ? dfmt(latest) : "—"} · ${counted.length} reports`);
   setText("tableBadge", `${counted.length} reports`);
 
@@ -220,16 +220,23 @@ function render(reports) {
 }
 
 function buildPace(reps) {
-  const now = new Date();
-  const thisM = now.getMonth(), thisY = now.getFullYear();
-  const lastM = thisM === 0 ? 11 : thisM - 1;
-  const lastY = thisM === 0 ? thisY - 1 : thisY;
+  // Anchor to the latest data date; compare last 30 days vs prior 30 days
+  const sortedDates = reps.map(r => parseDate(r.date)).sort((a, b) => b - a);
+  const anchor = sortedDates[0] || new Date();
+
+  const MS_30 = 30 * 24 * 60 * 60 * 1000;
+  const windowEnd = anchor;
+  const windowStart = new Date(anchor.getTime() - MS_30);
+  const prevEnd = windowStart;
+  const prevStart = new Date(windowStart.getTime() - MS_30);
+
   let thisTotal = 0, lastTotal = 0;
   reps.forEach(r => {
     const d = parseDate(r.date);
-    if (d.getMonth() === thisM && d.getFullYear() === thisY) thisTotal += n(r.jobsLost);
-    if (d.getMonth() === lastM && d.getFullYear() === lastY) lastTotal += n(r.jobsLost);
+    if (d >= windowStart && d <= windowEnd) thisTotal += n(r.jobsLost);
+    if (d >= prevStart && d < prevEnd) lastTotal += n(r.jobsLost);
   });
+
   const paceEl = document.getElementById("paceNumber");
   const deltaEl = document.getElementById("paceDelta");
   if (lastTotal > 0) {
@@ -237,13 +244,13 @@ function buildPace(reps) {
     const arrow = change > 5 ? "▲" : change < -5 ? "▼" : "—";
     const arrowClass = change > 5 ? "up" : change < -5 ? "down" : "flat";
     paceEl.innerHTML = `<span class="pace-arrow ${arrowClass}">${arrow}</span> ${nf.format(thisTotal)}`;
-    deltaEl.textContent = `${change > 0 ? "+" : ""}${Math.round(change)}% vs ${mtk.format(new Date(lastY, lastM))}`;
+    deltaEl.textContent = `${change > 0 ? "+" : ""}${Math.round(change)}% vs prior 30 days`;
   } else if (thisTotal > 0) {
     paceEl.textContent = nf.format(thisTotal);
-    deltaEl.textContent = `No data for ${mtk.format(new Date(lastY, lastM))}`;
+    deltaEl.textContent = "No prior period data";
   } else {
     paceEl.textContent = "—";
-    deltaEl.textContent = "No reports this month yet";
+    deltaEl.textContent = "No recent reports";
   }
 }
 
