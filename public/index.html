@@ -17,37 +17,38 @@
 </head>
 <body class="dash-body">
 
-<!-- Unified hero header — brand + live stats in one dark band -->
+<!-- Dark header band -->
 <header class="site-header" role="banner">
-  <div class="header-wrap">
-    <!-- Brand row: logo + title + last-updated -->
-    <div class="header-brand-row">
-      <div class="header-brand">
-        <div class="brand-logo logo-mask"
-             style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
-             role="img" aria-label="The Alliance for Secure AI"></div>
-        <div class="brand-divider" aria-hidden="true"></div>
-        <h1 class="site-title">AI Job Loss Tracker</h1>
-      </div>
-      <p class="header-updated" id="lastUpdated"></p>
+  <div class="wrap">
+    <div class="header-left">
+      <div class="brand-logo logo-mask"
+           style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
+           role="img" aria-label="The Alliance for Secure AI"></div>
+      <h1 class="site-title">AI Job Loss Tracker</h1>
     </div>
-    <!-- Stats row: total + pace -->
-    <div class="header-stats-row">
-      <div class="header-stat-primary">
-        <p class="header-stat-label">Total AI-linked job losses</p>
-        <div class="header-stat-number" id="counterNumber" aria-live="polite">0</div>
-        <p class="header-stat-asof" id="asOfText"></p>
-      </div>
-      <div class="pace-box" id="paceBox">
-        <p class="pace-label">Last 30 days</p>
-        <p class="pace-number" id="paceNumber">—</p>
-        <p class="pace-delta" id="paceDelta"></p>
-      </div>
-    </div>
+    <p class="header-updated" id="lastUpdated"></p>
   </div>
 </header>
 
 <main>
+  <!-- Stats counter — first visible section -->
+  <section class="counter-section" aria-labelledby="counter-heading">
+    <div class="counter-inner">
+      <div class="counter-grid">
+        <div class="counter-left">
+          <p class="counter-label" id="counter-heading">Total AI-linked job losses</p>
+          <div class="counter-number" id="counterNumber" aria-live="polite">0</div>
+          <p class="counter-asof" id="asOfText"></p>
+        </div>
+        <div class="pace-box" id="paceBox">
+          <p class="pace-label">Last 30 days</p>
+          <p class="pace-number" id="paceNumber">—</p>
+          <p class="pace-delta" id="paceDelta"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Hero — description + chart -->
   <section class="hero">
     <div class="page">
