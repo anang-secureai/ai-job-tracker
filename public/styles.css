@@ -234,6 +234,49 @@ body {
 .pace-arrow.flat { color: var(--text-on-dark-mid); }
 .pace-delta { font-size: 0.68rem; color: var(--text-on-dark-mid); margin: 0.1rem 0 0; }
 
+/* ── Signup section ─── */
+.signup-section {
+  background: var(--seaweed);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 1.5rem 0;
+}
+.signup-wrap {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 1rem 2.5rem;
+  align-items: center;
+}
+.signup-copy h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-on-dark);
+  margin: 0 0 0.3rem;
+}
+.signup-copy p {
+  font-size: 0.82rem;
+  color: var(--text-on-dark-mid);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 36ch;
+}
+.signup-form-area {
+  min-width: 0;
+}
+.signup-form-area .hs-form-frame {
+  display: block;
+  width: 100%;
+  min-height: 60px;
+}
+@media (max-width: 768px) {
+  .signup-wrap {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .signup-copy p { max-width: 100%; }
+}
+
 /* ── Stats strip — white cards ─── */
 .stats-section { padding: 1.5rem 0 0; }
 .stats-row {
