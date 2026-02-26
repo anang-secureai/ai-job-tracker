@@ -41,12 +41,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://js-na2.hsforms.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js-na2.hsforms.net", "https://static.cloudflareinsights.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
       connectSrc: ["'self'"],
-      frameSrc: ["'self'", "https://forms.hsforms.com"],
+      frameSrc: ["'self'", "https://forms.hsforms.com", "https://js-na2.hsforms.net"],
     },
   },
 }));
