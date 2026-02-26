@@ -238,36 +238,40 @@ body {
 .signup-section {
   background: var(--seaweed);
   border-top: 1px solid rgba(255,255,255,0.07);
-  padding: 1.5rem 0;
+  padding: 0.6rem 0 0.4rem;
 }
 .signup-wrap {
   width: min(1100px, 92vw);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1.8fr;
-  gap: 1rem 2.5rem;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 0.5rem 2rem;
   align-items: center;
 }
 .signup-copy h2 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--text-on-dark);
-  margin: 0 0 0.3rem;
+  margin: 0 0 0.2rem;
 }
 .signup-copy p {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-on-dark-mid);
-  line-height: 1.5;
+  line-height: 1.45;
   margin: 0;
   max-width: 36ch;
 }
 .signup-form-area {
   min-width: 0;
+  max-width: 480px;
 }
 .signup-form-area .hs-form-frame {
   display: block;
   width: 100%;
-  min-height: 60px;
+  min-height: 44px;
+  /* Pull in the iframe's internal padding via negative margin trick */
+  margin: -0.6rem -0.5rem;
+  width: calc(100% + 1rem);
 }
 .signup-form-area .hs-form-frame iframe {
   display: block;
@@ -277,9 +281,14 @@ body {
 @media (max-width: 768px) {
   .signup-wrap {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.25rem;
   }
   .signup-copy p { max-width: 100%; }
+  .signup-form-area {
+    max-width: 100%;
+    margin: 0 -0.25rem;
+    width: calc(100% + 0.5rem);
+  }
 }
 
 /* ── Stats strip — white cards ─── */
