@@ -269,6 +269,11 @@ body {
   width: 100%;
   min-height: 60px;
 }
+.signup-form-area .hs-form-frame iframe {
+  display: block;
+  width: 100% !important;
+  border: none;
+}
 @media (max-width: 768px) {
   .signup-wrap {
     grid-template-columns: 1fr;
