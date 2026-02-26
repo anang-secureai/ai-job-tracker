@@ -128,25 +128,53 @@ body {
 
 .dash-body { background: var(--bg-warm); }
 
-/* ── Dark header band ─── */
+/* ── Unified hero header — dark band with brand + live stats ─── */
 .site-header {
   background: linear-gradient(135deg, var(--seaweed) 0%, #1e3a1a 100%);
-  padding: 1.4rem 0 1.6rem;
+  padding: 1.2rem 0 1.6rem;
 }
-.site-header .wrap {
+.header-wrap {
   width: min(1100px, 92vw); margin: 0 auto;
+}
+
+/* Brand row: logo | divider | title   ···   last-updated */
+.header-brand-row {
   display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.2rem;
+  padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.12);
 }
-.brand-logo { display: block; width: min(220px, 44vw); height: auto; aspect-ratio: 1600/583; }
-.brand-badge {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  padding: 0.3rem 0.75rem; border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.08);
-  color: var(--text-on-dark-mid); font-size: 0.72rem; font-weight: 700;
-  letter-spacing: 0.06em; text-transform: uppercase;
+.header-brand {
+  display: flex; align-items: center; gap: 0.85rem; min-width: 0;
 }
-.brand-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gamboge-light); }
+.brand-logo { display: block; width: min(130px, 26vw); height: auto; aspect-ratio: 1600/583; flex-shrink: 0; }
+.brand-divider { width: 1px; height: 1.5rem; background: rgba(255,255,255,0.22); flex-shrink: 0; }
+.site-title {
+  margin: 0; font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+  font-weight: 800; color: var(--text-on-dark); letter-spacing: -0.01em; line-height: 1.1;
+}
+.header-updated {
+  margin: 0; font-size: 0.68rem; font-weight: 700;
+  color: var(--gamboge-light); white-space: nowrap; text-align: right; flex-shrink: 0;
+}
+
+/* Stats row: big number left · pace box right */
+.header-stats-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.header-stat-primary { min-width: 0; }
+.header-stat-label {
+  margin: 0; font-size: 0.7rem; color: var(--text-on-dark-mid); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.header-stat-number {
+  margin: 0.1rem 0 0;
+  font-size: clamp(2.8rem, 9vw, 4.6rem);
+  font-weight: 900; font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em; color: var(--text-on-dark); line-height: 1;
+}
+.header-stat-number.counting { color: #fff; }
+.header-stat-asof { margin: 0.15rem 0 0; font-size: 0.68rem; color: var(--text-on-dark-mid); }
 
 .page { width: min(1100px, 92vw); margin: 0 auto; }
 
@@ -163,9 +191,9 @@ body {
   margin: 0; color: var(--green); letter-spacing: 0.12em;
   text-transform: uppercase; font-size: 0.72rem; font-weight: 700;
 }
-.hero h1 {
+.hero-h2 {
   margin: 0.3rem 0 0; max-width: 20ch;
-  font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1.08; font-weight: 900;
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem); line-height: 1.1; font-weight: 900;
   color: var(--seaweed);
 }
 .subtitle { margin: 0.8rem 0 0; max-width: 60ch; line-height: 1.55; color: var(--text-mid); font-size: 0.9rem; }
@@ -203,40 +231,7 @@ body {
   background: var(--gamboge-light); box-shadow: 0 0 0 0.15rem rgba(228,153,27,0.3);
 }
 
-/* ── Counter hero — dark band ─── */
-.counter-section {
-  background: var(--seaweed);
-  margin-top: 2rem;
-  padding: 1.6rem 0;
-}
-.counter-inner {
-  width: min(1100px, 92vw); margin: 0 auto;
-}
-.counter-headline {
-  font-size: clamp(1.1rem, 2.8vw, 1.55rem);
-  font-weight: 800; line-height: 1.2; margin: 0 0 1rem;
-  padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.15);
-  color: var(--text-on-dark);
-}
-.counter-headline .hl-number {
-  color: var(--gamboge-light); font-variant-numeric: tabular-nums;
-}
-.counter-grid { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-.counter-left { min-width: 0; }
-.counter-label {
-  font-size: 0.72rem; color: var(--text-on-dark-mid); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
-.counter-number {
-  margin: 0.1rem 0 0;
-  font-size: clamp(2.8rem, 9vw, 4.6rem);
-  font-weight: 900; font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em; color: var(--text-on-dark); line-height: 1;
-}
-.counter-number.counting { color: #fff; }
-.counter-asof { margin: 0.15rem 0 0; font-size: 0.68rem; color: var(--text-on-dark-mid); }
-
-/* Pace indicator — on dark */
+/* ── Pace indicator — on dark (used in header stats row) ─── */
 .pace-box {
   text-align: right; padding: 0.65rem 0.9rem; border-radius: 0.6rem;
   border: 1px solid rgba(255,255,255,0.15);
@@ -391,16 +386,18 @@ tbody tr.major .cell-jobs { font-size: 0.98rem; font-weight: 800; color: var(--g
 
 /* ── Responsive ─── */
 @media (max-width: 768px) {
-  .site-header { padding: 1rem 0 1.2rem; }
+  .site-header { padding: 1rem 0 1.3rem; }
+  .header-brand-row { margin-bottom: 1rem; padding-bottom: 0.85rem; }
+  .brand-logo { width: min(100px, 28vw); }
+  .site-title { font-size: clamp(0.85rem, 4vw, 1.05rem); }
+  .header-updated { font-size: 0.62rem; }
+  .header-stats-row { flex-direction: column; align-items: flex-start; gap: 0.85rem; }
+  .header-stat-number { font-size: clamp(2.4rem, 11vw, 3.4rem); }
+  .pace-box { text-align: left; min-width: auto; align-self: stretch; }
   .hero { padding: 1.4rem 0 0; }
   .hero-grid { grid-template-columns: 1fr; gap: 1rem; }
-  .hero h1 { font-size: clamp(1.4rem, 6.5vw, 2rem); }
+  .hero-h2 { font-size: clamp(1.3rem, 6vw, 1.8rem); }
   .subtitle { font-size: 0.84rem; }
-  .counter-section { padding: 1.2rem 0; }
-  .counter-headline { font-size: clamp(1rem, 4.5vw, 1.3rem); }
-  .counter-grid { flex-direction: column; align-items: flex-start; }
-  .pace-box { text-align: left; min-width: auto; }
-  .counter-number { font-size: clamp(2.2rem, 11vw, 3.2rem); }
   .stats-row { gap: 0.45rem; }
   .stat-card { padding: 0.6rem 0.65rem; }
   .stat-card h3 { font-size: 0.62rem; }
@@ -413,8 +410,8 @@ tbody tr.major .cell-jobs { font-size: 0.98rem; font-weight: 800; color: var(--g
 @media (max-width: 420px) {
   .stats-row { gap: 0.3rem; }
   .stat-card { padding: 0.45rem 0.5rem; }
-  .counter-section { padding: 1rem 0; }
-  .brand-logo { width: min(170px, 48vw); }
+  .brand-logo { width: min(90px, 30vw); }
+  .brand-divider { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -423,8 +420,8 @@ tbody tr.major .cell-jobs { font-size: 0.98rem; font-weight: 800; color: var(--g
 /* ── Print ─── */
 @media print {
   .site-header, .site-footer { break-inside: avoid; }
-  .counter-section { background: #f0f0f0 !important; color: #111 !important; }
-  .counter-number, .counter-headline, .counter-headline .hl-number { color: #111 !important; }
+  .site-header { background: #f0f0f0 !important; color: #111 !important; }
+  .header-stat-number, .site-title { color: #111 !important; }
   body { font-size: 11pt; }
 }
 
