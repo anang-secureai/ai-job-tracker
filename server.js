@@ -45,8 +45,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
-      frameSrc: ["'self'", "https://forms.hsforms.com", "https://js-na2.hsforms.net"],
+      connectSrc: ["'self'", "https://api.hsforms.com", "https://forms.hubspot.com", "https://js-na2.hsforms.net"],
     },
   },
 }));

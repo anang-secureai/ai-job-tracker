@@ -263,32 +263,108 @@ body {
 }
 .signup-form-area {
   min-width: 0;
-  max-width: 480px;
 }
-.signup-form-area .hs-form-frame {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  /* Pull in the iframe's internal padding via negative margin trick */
-  margin: -0.6rem -0.5rem;
-  width: calc(100% + 1rem);
+
+/* ── HubSpot developer-embed form (hs-form-html — inline DOM, full CSS access) ─── */
+.signup-form-area .hs-form {
+  margin: 0;
 }
-.signup-form-area .hs-form-frame iframe {
-  display: block;
-  width: 100% !important;
+/* Lay the email field + button out as a single row */
+.signup-form-area .hs-form .hs-email,
+.signup-form-area .hs-form .hs-fieldtype-text {
+  margin-bottom: 0;
+}
+.signup-form-area .hs-form fieldset {
+  max-width: 100% !important;
   border: none;
+  margin: 0;
+  padding: 0;
 }
+.signup-form-area .hs-form .form-columns-1,
+.signup-form-area .hs-form .form-columns-2 {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.signup-form-area .hs-form .hs-form-field {
+  flex: 1 1 180px;
+  margin-bottom: 0 !important;
+}
+.signup-form-area .hs-form label.hs-label {
+  display: none; /* hide label — placeholder is enough */
+}
+.signup-form-area .hs-form .hs-input {
+  width: 100% !important;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.signup-form-area .hs-form .hs-input::placeholder { color: rgba(255,255,255,0.45); }
+.signup-form-area .hs-form .hs-input:focus { border-color: var(--gamboge-light); }
+.signup-form-area .hs-form .hs-error-msgs {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.signup-form-area .hs-form .hs-error-msgs li label {
+  display: block;
+  font-size: 0.72rem;
+  color: #ffa0a0;
+}
+.signup-form-area .hs-form .actions {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+}
+.signup-form-area .hs-form .hs-button {
+  padding: 0.45rem 1rem;
+  border-radius: 0.4rem;
+  border: none;
+  background: var(--gamboge);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.signup-form-area .hs-form .hs-button:hover { background: var(--gamboge-light); }
+/* Legal / GDPR consent block */
+.signup-form-area .hs-form .legal-consent-container {
+  font-size: 0.68rem;
+  color: var(--text-on-dark-mid);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+}
+.signup-form-area .hs-form .legal-consent-container a { color: var(--gamboge-light); }
+/* Success message */
+.signup-form-area .submitted-message {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #a0e0a0;
+  padding: 0.5rem 0;
+}
+
 @media (max-width: 768px) {
   .signup-wrap {
     grid-template-columns: 1fr;
     gap: 0.25rem;
   }
   .signup-copy p { max-width: 100%; }
-  .signup-form-area {
-    max-width: 100%;
-    margin: 0 -0.25rem;
-    width: calc(100% + 0.5rem);
+  .signup-form-area .hs-form .form-columns-1,
+  .signup-form-area .hs-form .form-columns-2 {
+    flex-direction: column;
   }
+  .signup-form-area .hs-form .actions { width: 100%; }
+  .signup-form-area .hs-form .hs-button { width: 100%; }
 }
 
 /* ── Stats strip — white cards ─── */
