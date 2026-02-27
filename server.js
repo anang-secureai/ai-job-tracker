@@ -317,6 +317,11 @@ app.get("/widget", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "widget.html"));
 });
 
+// Mini widget — counter-only crop for embedding on the main site
+app.get("/widget-mini", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "widget-mini.html"));
+});
+
 // ── Export for Vercel serverless; boot normally for local dev ─────────
 module.exports = app;
 

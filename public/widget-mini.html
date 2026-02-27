@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Loss Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --seaweed:          #192d17;
+  --gamboge:          #c07f10;
+  --gamboge-light:    #e4991b;
+  --gamboge-bg:       #fef8ed;
+  --text-on-dark:     #f3f7f1;
+  --text-on-dark-mid: #b8c8b1;
+  --green:            #3d6b35;
+  --green-light:      #709663;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Libre Franklin", "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--seaweed);
+}
+
+/* ── Outer wrapper ── */
+.mini-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Counter band — same dark green as full widget ── */
+.w-counter {
+  background: var(--seaweed);
+  padding: 0.9rem 1.1rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.counter-label {
+  font-size: 0.62rem;
+  color: var(--text-on-dark-mid);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.counter-number {
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--text-on-dark);
+  line-height: 1;
+  margin-top: 0.1rem;
+}
+.counter-asof {
+  font-size: 0.58rem;
+  color: var(--text-on-dark-mid);
+  margin-top: 0.2rem;
+}
+
+/* ── Pace box ── */
+.pace-box {
+  text-align: right;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+.pace-label {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-on-dark-mid);
+  font-weight: 700;
+}
+.pace-number {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-on-dark);
+  line-height: 1.15;
+  margin-top: 0.1rem;
+}
+.pace-delta { font-size: 0.58rem; color: var(--text-on-dark-mid); margin-top: 0.08rem; }
+.pace-arrow.up   { color: #ffa0a0; }
+.pace-arrow.down { color: #a0e0a0; }
+.pace-arrow.flat { color: var(--text-on-dark-mid); }
+
+/* ── Slim footer attribution ── */
+.mini-footer {
+  background: rgba(0,0,0,0.25);
+  padding: 0.35rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.mini-footer-brand {
+  font-size: 0.58rem;
+  color: var(--text-on-dark-mid);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.mini-footer-brand .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gamboge-light);
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(228,153,27,0.5); }
+  50%      { opacity: 0.75; box-shadow: 0 0 0 4px rgba(228,153,27,0); }
+}
+.mini-footer-link {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--gamboge-light);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.mini-footer-link:hover { opacity: 1; }
+
+/* ── Loading / error state ── */
+.state-msg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-on-dark-mid);
+  font-size: 0.8rem;
+  padding: 1rem;
+}
+.state-msg.error { color: #ffa0a0; }
+.spinner {
+  display: inline-block;
+  width: 1rem; height: 1rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: var(--gamboge-light);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.5rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 420px) {
+  .w-counter { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.75rem 0.85rem; }
+  .pace-box { text-align: left; min-width: auto; width: 100%; }
+  .counter-number { font-size: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="mini-widget" id="miniWidget">
+  <!-- Counter — shown once data loads -->
+  <div class="w-counter" id="wCounter" style="display:none" aria-labelledby="wCounterLabel">
+    <div>
+      <p class="counter-label" id="wCounterLabel">Total AI-linked job losses</p>
+      <div class="counter-number" id="wTotal" aria-live="polite">—</div>
+      <p class="counter-asof" id="wAsOf"></p>
+    </div>
+    <div class="pace-box">
+      <p class="pace-label">This month's pace</p>
+      <p class="pace-number" id="wPace">—</p>
+      <p class="pace-delta" id="wDelta"></p>
+    </div>
+  </div>
+
+  <!-- Loading/error placeholder -->
+  <div class="state-msg" id="wState">
+    <span class="spinner"></span>Loading…
+  </div>
+
+  <!-- Slim attribution footer -->
+  <div class="mini-footer">
+    <div class="mini-footer-brand">
+      <span class="dot" aria-hidden="true"></span>
+      AI Job Loss Tracker · Alliance for Secure AI
+    </div>
+    <a href="https://jobloss.ai" class="mini-footer-link" target="_blank" rel="noopener noreferrer">
+      Full dashboard →
+    </a>
+  </div>
+</div>
+
+<script>
+const BASELINE = new Date(2025, 0, 1);
+const C_TYPES  = new Set(["NEW"]);
+const C_ATTR   = new Set(["EXPLICIT", "BLAMED", "MIXED"]);
+
+const nf  = new Intl.NumberFormat("en-US");
+const mtk = new Intl.DateTimeFormat("en-US", { month: "short" });
+const dfmt = d => new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(d);
+
+boot();
+
+async function boot() {
+  try {
+    const res = await fetch("/api/reports");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) throw new Error(`Not JSON (${ct})`);
+    const d = await res.json();
+    if (!d.ok) throw new Error(d.error || "API error");
+    render(d.reports);
+  } catch (e) {
+    console.error("[widget-mini]", e);
+    const s = document.getElementById("wState");
+    s.className = "state-msg error";
+    s.textContent = "Failed to load data.";
+  }
+}
+
+function render(reports) {
+  const since   = reports.filter(r => parseDate(r.date) >= BASELINE);
+  const counted = since.filter(r => C_TYPES.has(r.lossType) && C_ATTR.has(r.aiAttribution));
+
+  const stateEl   = document.getElementById("wState");
+  const counterEl = document.getElementById("wCounter");
+
+  if (!counted.length) {
+    stateEl.textContent = "No reports yet.";
+    return;
+  }
+
+  const total = counted.reduce((s, r) => s + n(r.jobsLost), 0);
+
+  /* ── Counter ── */
+  animateCount("wTotal", total, 1400);
+  const dates  = counted.map(r => parseDate(r.date)).sort((a, b) => a - b);
+  const latest = dates[dates.length - 1];
+  setText("wAsOf", `As of ${dfmt(new Date())} · Latest: ${dfmt(latest)}`);
+
+  /* ── Pace ── */
+  const now   = new Date();
+  const thisM = now.getMonth(), thisY = now.getFullYear();
+  const lastM = thisM === 0 ? 11 : thisM - 1;
+  const lastY = thisM === 0 ? thisY - 1 : thisY;
+  let thisTotal = 0, lastTotal = 0;
+  counted.forEach(r => {
+    const d = parseDate(r.date);
+    if (d.getMonth() === thisM && d.getFullYear() === thisY) thisTotal += n(r.jobsLost);
+    if (d.getMonth() === lastM && d.getFullYear() === lastY) lastTotal += n(r.jobsLost);
+  });
+  const paceEl  = document.getElementById("wPace");
+  const deltaEl = document.getElementById("wDelta");
+  if (lastTotal > 0) {
+    const chg   = ((thisTotal - lastTotal) / lastTotal) * 100;
+    const arrow = chg > 5 ? "▲" : chg < -5 ? "▼" : "—";
+    const cls   = chg > 5 ? "up" : chg < -5 ? "down" : "flat";
+    paceEl.innerHTML    = `<span class="pace-arrow ${cls}">${arrow}</span> ${nf.format(thisTotal)}`;
+    deltaEl.textContent = `${chg > 0 ? "+" : ""}${Math.round(chg)}% vs ${mtk.format(new Date(lastY, lastM))}`;
+  } else if (thisTotal > 0) {
+    paceEl.textContent  = nf.format(thisTotal);
+    deltaEl.textContent = "No prior-month data";
+  } else {
+    paceEl.textContent  = "—";
+    deltaEl.textContent = "No reports this month yet";
+  }
+
+  /* ── Show counter, hide loader ── */
+  stateEl.style.display   = "none";
+  counterEl.style.display = "";
+}
+
+function animateCount(id, target, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (target === 0) { el.textContent = "0"; return; }
+  const t0   = performance.now();
+  const ease = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    el.textContent = nf.format(Math.floor(target * ease(p)));
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = nf.format(target);
+  })(performance.now());
+}
+
+function parseDate(v) {
+  if (typeof v === "string") {
+    let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return new Date(+m[3], +m[1]-1, +m[2]);
+  }
+  const d = new Date(v); return isNaN(d.getTime()) ? BASELINE : d;
+}
+function n(v)   { const x = Number(v); return isFinite(x) ? x : 0; }
+function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+</script>
+</body>
+</html>
