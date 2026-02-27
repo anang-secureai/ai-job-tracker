@@ -41,7 +41,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js-na2.hsforms.net", "https://forms.hsforms.com", "https://static.hsappstatic.net", "https://static.cloudflareinsights.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js-na2.hsforms.net", "https://forms.hsforms.com", "https://static.hsappstatic.net", "https://241839045.fs1.hubspotusercontent-na2.net", "https://static.cloudflareinsights.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://forms.hsforms.com", "https://js-na2.hsforms.net"],
