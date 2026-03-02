@@ -38,6 +38,7 @@ if (ADMIN_PASSWORD) {
 
 app.use(compression());
 app.use(helmet({
+  frameguard: false, // we control this per-route
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -314,6 +315,9 @@ app.get("/admin/candidates", (req, res) => {
 
 // Widget — served as iframe on secureainow.org
 app.get("/widget", (req, res) => {
+  // Allow this route to be embedded as an iframe on any domain
+  res.removeHeader("X-Frame-Options");
+  res.setHeader("Content-Security-Policy", "frame-ancestors *");
   res.sendFile(path.join(__dirname, "public", "widget.html"));
 });
 
