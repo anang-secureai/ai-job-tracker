@@ -323,6 +323,9 @@ app.get("/widget", (req, res) => {
 
 // Mini widget — counter-only crop for embedding on the main site
 app.get("/widget-mini", (req, res) => {
+  // Allow this route to be embedded as an iframe on any domain
+  res.removeHeader("X-Frame-Options");
+  res.setHeader("Content-Security-Policy", "frame-ancestors * https: http:");
   res.sendFile(path.join(__dirname, "public", "widget-mini.html"));
 });
 
