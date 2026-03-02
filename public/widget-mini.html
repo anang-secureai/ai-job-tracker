@@ -88,47 +88,19 @@ body {
   gap: 0.1rem;
 }
 .counter-label {
-  font-size: 0.58rem;
-  color: var(--text-on-dark-mid);
-  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--text-on-dark);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
 }
 .counter-asof {
-  font-size: 0.52rem;
+  font-size: 0.68rem;
   color: var(--text-on-dark-mid);
+  font-weight: 600;
   white-space: nowrap;
 }
-
-/* ── Pace box ── */
-.pace-box {
-  text-align: center;
-  padding: 0.45rem 0.7rem;
-  border-radius: 0.55rem;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
-  flex-shrink: 0;
-  min-width: 120px;
-}
-.pace-label {
-  font-size: 0.52rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-on-dark-mid);
-  font-weight: 700;
-}
-.pace-number {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--text-on-dark);
-  line-height: 1.15;
-  margin-top: 0.05rem;
-}
-.pace-delta { font-size: 0.52rem; color: var(--text-on-dark-mid); margin-top: 0.05rem; }
-.pace-arrow.up   { color: #ffa0a0; }
-.pace-arrow.down { color: #a0e0a0; }
-.pace-arrow.flat { color: var(--text-on-dark-mid); }
 
 /* ── Dashboard link ── */
 .dash-link {
@@ -169,11 +141,9 @@ body {
   .mini-widget { padding: 0 0.75rem; gap: 0.75rem; }
   .counter-number { font-size: 1.6rem; }
   .counter-asof { display: none; }
-  .pace-delta { display: none; }
 }
 @media (max-width: 420px) {
   .brand-cell { display: none; }
-  .pace-box { min-width: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -199,13 +169,6 @@ body {
     </div>
   </div>
 
-  <!-- Pace box — shown once data loads -->
-  <div class="pace-box" id="wPaceBox" style="display:none">
-    <p class="pace-label">This month's pace</p>
-    <p class="pace-number" id="wPace">—</p>
-    <p class="pace-delta" id="wDelta"></p>
-  </div>
-
   <!-- Loading/error placeholder -->
   <div class="state-msg" id="wState">
     <span class="spinner"></span>Loading…
@@ -223,7 +186,6 @@ const C_TYPES  = new Set(["NEW"]);
 const C_ATTR   = new Set(["EXPLICIT", "BLAMED", "MIXED"]);
 
 const nf  = new Intl.NumberFormat("en-US");
-const mtk = new Intl.DateTimeFormat("en-US", { month: "short" });
 const dfmt = d => new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(d);
 
 boot();
@@ -251,7 +213,6 @@ function render(reports) {
 
   const stateEl   = document.getElementById("wState");
   const counterEl = document.getElementById("wCounter");
-  const paceBoxEl = document.getElementById("wPaceBox");
 
   if (!counted.length) {
     stateEl.textContent = "No reports yet.";
@@ -266,37 +227,9 @@ function render(reports) {
   const latest = dates[dates.length - 1];
   setText("wAsOf", `As of ${dfmt(new Date())} · Latest: ${dfmt(latest)}`);
 
-  /* ── Pace ── */
-  const now   = new Date();
-  const thisM = now.getMonth(), thisY = now.getFullYear();
-  const lastM = thisM === 0 ? 11 : thisM - 1;
-  const lastY = thisM === 0 ? thisY - 1 : thisY;
-  let thisTotal = 0, lastTotal = 0;
-  counted.forEach(r => {
-    const d = parseDate(r.date);
-    if (d.getMonth() === thisM && d.getFullYear() === thisY) thisTotal += n(r.jobsLost);
-    if (d.getMonth() === lastM && d.getFullYear() === lastY) lastTotal += n(r.jobsLost);
-  });
-  const paceEl  = document.getElementById("wPace");
-  const deltaEl = document.getElementById("wDelta");
-  if (lastTotal > 0) {
-    const chg   = ((thisTotal - lastTotal) / lastTotal) * 100;
-    const arrow = chg > 5 ? "▲" : chg < -5 ? "▼" : "—";
-    const cls   = chg > 5 ? "up" : chg < -5 ? "down" : "flat";
-    paceEl.innerHTML    = `<span class="pace-arrow ${cls}">${arrow}</span> ${nf.format(thisTotal)}`;
-    deltaEl.textContent = `${chg > 0 ? "+" : ""}${Math.round(chg)}% vs ${mtk.format(new Date(lastY, lastM))}`;
-  } else if (thisTotal > 0) {
-    paceEl.textContent  = nf.format(thisTotal);
-    deltaEl.textContent = "No prior-month data";
-  } else {
-    paceEl.textContent  = "—";
-    deltaEl.textContent = "No reports this month yet";
-  }
-
-  /* ── Show counter + pace, hide loader ── */
+  /* ── Show counter, hide loader ── */
   stateEl.style.display   = "none";
   counterEl.style.display = "";
-  paceBoxEl.style.display = "";
 }
 
 function animateCount(id, target, dur) {
