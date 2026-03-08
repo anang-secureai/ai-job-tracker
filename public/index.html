@@ -8,6 +8,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>window.dataLayer = window.dataLayer || [];</script>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -246,7 +247,23 @@ function render(reports) {
 
   // Contact link (built via JS to avoid Cloudflare email obfuscation)
   const cl = document.getElementById("contactLink");
-  if (cl) { const e = ["contact","secureainow.org"].join("@"); cl.href = "mailto:" + e; cl.textContent = e; }
+  if (cl) { const e = ["contact","secureainow.org"].join("@"); cl.href = "mailto:" + e; cl.textContent = e; cl.onclick = function(){ window.dataLayer.push({ event: 'contact_click' }); }; }
+
+  // HubSpot form submission → dataLayer
+  window.addEventListener('message', function(event) {
+    if (event.data.type === 'hsFormCallback' && event.data.eventName === 'onFormSubmitted') {
+      window.dataLayer.push({ event: 'hubspot_form_submit' });
+    }
+  });
+
+  // Graph interaction → dataLayer (once per session)
+  var chartCanvas = document.getElementById('monthlyLossChart');
+  if (chartCanvas) {
+    chartCanvas.addEventListener('mouseenter', function onGraphHover() {
+      window.dataLayer.push({ event: 'graph_interaction' });
+      chartCanvas.removeEventListener('mouseenter', onGraphHover);
+    });
+  }
 }
 
 function buildPace(reps) {
