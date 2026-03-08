@@ -249,10 +249,20 @@ function render(reports) {
   const cl = document.getElementById("contactLink");
   if (cl) { const e = ["contact","secureainow.org"].join("@"); cl.href = "mailto:" + e; cl.textContent = e; cl.onclick = function(){ window.dataLayer.push({ event: 'contact_click' }); }; }
 
-  // HubSpot form submission → dataLayer
-  window.addEventListener('message', function(event) {
-    if (event.data.type === 'hsFormCallback' && event.data.eventName === 'onFormSubmitted') {
-      window.dataLayer.push({ event: 'hubspot_form_submit' });
+  // Accordion clicks → dataLayer (once per session per accordion)
+  var accordionFired = {};
+  document.querySelectorAll('.method-section details.method').forEach(function(det) {
+    var text = det.querySelector('summary').textContent.trim();
+    var name = text === 'Counting methodology' ? 'methodology'
+             : text === 'Data dictionary' ? 'data_dictionary'
+             : text === 'Update log' ? 'update_log' : null;
+    if (name) {
+      det.querySelector('summary').addEventListener('click', function() {
+        if (!accordionFired[name]) {
+          accordionFired[name] = true;
+          window.dataLayer.push({ event: 'accordion_click', accordion_name: name });
+        }
+      });
     }
   });
 
