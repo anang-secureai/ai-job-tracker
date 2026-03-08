@@ -46,7 +46,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://forms.hsforms.com", "https://forms-na2.hsforms.com", "https://js-na2.hsforms.net", "https://www.google-analytics.com", "https://www.googletagmanager.com", "https://www.facebook.com", "https://t.co", "https://analytics.twitter.com", "https://ad.doubleclick.net", "https://www.google.com"],
-      connectSrc: ["'self'", "https://api.hsforms.com", "https://forms.hubspot.com", "https://js-na2.hsforms.net", "https://forms-na2.hsforms.com", "https://*.hubspot.com", "https://*.hsforms.com", "https://www.google-analytics.com", "https://analytics.google.com", "https://stats.g.doubleclick.net", "https://www.facebook.com", "https://connect.facebook.net", "https://analytics.twitter.com"],
+      connectSrc: ["'self'", "https://api.hsforms.com", "https://forms.hubspot.com", "https://js-na2.hsforms.net", "https://forms-na2.hsforms.com", "https://*.hubspot.com", "https://*.hsforms.com", "https://www.google-analytics.com", "https://analytics.google.com", "https://stats.g.doubleclick.net", "https://www.facebook.com", "https://connect.facebook.net", "https://analytics.twitter.com", "https://www.google.com"],
       formAction: ["'self'", "https://forms-na2.hsforms.com"],
       frameSrc: ["https://forms-na2.hsforms.com", "https://js-na2.hsforms.net", "https://www.googletagmanager.com", "https://www.facebook.com"],
     },
