@@ -11,14 +11,15 @@
     "node": "20.x"
   },
   "dependencies": {
-    "express": "^4.21.0",
-    "pg": "^8.13.0",
-    "express-session": "^1.18.0",
-    "connect-pg-simple": "^10.0.0",
+    "@fontsource/libre-franklin": "^5.2.8",
     "bcryptjs": "^2.4.3",
-    "helmet": "^8.0.0",
     "compression": "^1.7.4",
+    "connect-pg-simple": "^10.0.0",
     "dotenv": "^16.4.5",
-    "node-cron": "^3.0.3"
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "helmet": "^8.0.0",
+    "node-cron": "^3.0.3",
+    "pg": "^8.13.0"
   }
 }
