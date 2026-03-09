@@ -301,6 +301,77 @@ app.post("/api/admin/candidates/:id/reject", requireAuth, async (req, res) => {
 
 // ── Page routes ──────────────────────────────────────────────────────
 
+// ── OG image — dynamic SVG card with live stats ─────────────────────
+app.get("/og-image", async (req, res) => {
+  try {
+    await ensureInit();
+    const reports = await db.getPublicReports();
+    const BASELINE = new Date(2025, 0, 1);
+    const counted = reports.filter(r => {
+      const d = parseReportDate(r.date);
+      return d >= BASELINE
+        && ["NEW"].includes(r.lossType)
+        && ["EXPLICIT","BLAMED","MIXED"].includes(r.aiAttribution);
+    });
+    const total = counted.reduce((s, r) => s + (Number(r.jobsLost) || 0), 0);
+    const totalStr = new Intl.NumberFormat("en-US").format(total);
+    const dates = counted.map(r => parseReportDate(r.date)).sort((a, b) => a - b);
+    const latest = dates.length
+      ? new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(dates[dates.length - 1])
+      : "N/A";
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#192d17"/>
+      <stop offset="100%" stop-color="#1e3a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Accent bar -->
+  <rect y="0" width="1200" height="6" fill="#e4991b"/>
+  <!-- Live dot -->
+  <circle cx="80" cy="96" r="6" fill="#e4991b"/>
+  <text x="98" y="101" fill="#b8c8b1" font-family="system-ui,sans-serif" font-size="18" font-weight="600" letter-spacing="2">UPDATED DAILY</text>
+  <!-- Title -->
+  <text x="80" y="175" fill="#f3f7f1" font-family="system-ui,sans-serif" font-size="52" font-weight="900" letter-spacing="-0.5">AI Job Loss Tracker</text>
+  <!-- Divider -->
+  <rect x="80" y="205" width="120" height="3" rx="1.5" fill="#e4991b" opacity="0.7"/>
+  <!-- Counter -->
+  <text x="80" y="330" fill="#f3f7f1" font-family="system-ui,sans-serif" font-size="120" font-weight="900" letter-spacing="-2">${totalStr}</text>
+  <text x="80" y="375" fill="#b8c8b1" font-family="system-ui,sans-serif" font-size="24" font-weight="700" letter-spacing="3">TOTAL AI-LINKED JOB LOSSES</text>
+  <!-- Stats boxes -->
+  <rect x="80" y="420" width="240" height="80" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="200" y="455" fill="#b8c8b1" font-family="system-ui,sans-serif" font-size="14" font-weight="700" letter-spacing="2" text-anchor="middle">REPORTS TRACKED</text>
+  <text x="200" y="487" fill="#f3f7f1" font-family="system-ui,sans-serif" font-size="32" font-weight="900" text-anchor="middle">${counted.length}</text>
+  <rect x="340" y="420" width="280" height="80" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="480" y="455" fill="#b8c8b1" font-family="system-ui,sans-serif" font-size="14" font-weight="700" letter-spacing="2" text-anchor="middle">LATEST REPORT</text>
+  <text x="480" y="487" fill="#f3f7f1" font-family="system-ui,sans-serif" font-size="26" font-weight="800" text-anchor="middle">${latest}</text>
+  <!-- Branding -->
+  <text x="80" y="580" fill="#b8c8b1" font-family="system-ui,sans-serif" font-size="20" font-weight="600">The Alliance for Secure AI</text>
+  <text x="1120" y="580" fill="#4a6845" font-family="system-ui,sans-serif" font-size="18" font-weight="600" text-anchor="end">jobloss.ai</text>
+</svg>`;
+
+    res.set("Content-Type", "image/svg+xml");
+    res.set("Cache-Control", "public, max-age=3600"); // 1 hr cache
+    res.send(svg);
+  } catch (err) {
+    console.error("[og-image]", err);
+    res.status(500).send("Error generating OG image");
+  }
+});
+
+function parseReportDate(v) {
+  if (typeof v === "string") {
+    let m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return new Date(+m[3], +m[1]-1, +m[2]);
+  }
+  const d = new Date(v); return isNaN(d.getTime()) ? new Date(2025, 0, 1) : d;
+}
+
+// ── HTML routes ──────────────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
