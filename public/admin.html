@@ -85,7 +85,6 @@
       <h1>AI Job Tracker</h1>
       <nav class="topbar-nav">
         <a href="/admin" class="active">Reports</a>
-        <a href="/admin/candidates" id="candLink">Candidates</a>
       </nav>
     </div>
     <div class="topbar-right">
@@ -139,12 +138,10 @@ let reports=[];
 
 async function checkAuth(){try{const r=await fetch("/api/auth/check");const d=await r.json();if(d.authenticated){showApp();return}}catch{}showLogin()}
 function showLogin(){$("loginScreen").style.display="flex";$("app").classList.remove("active")}
-function showApp(){$("loginScreen").style.display="none";$("app").classList.add("active");loadReports();loadCandBadge()}
+function showApp(){$("loginScreen").style.display="none";$("app").classList.add("active");loadReports()}
 
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginError").textContent="";try{const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("loginPassword").value})});const d=await r.json();if(d.ok)showApp();else $("loginError").textContent=d.error||"Login failed"}catch{$("loginError").textContent="Connection error"}});
 $("logoutBtn").addEventListener("click",async()=>{await fetch("/api/logout",{method:"POST"});showLogin();$("loginPassword").value=""});
-
-async function loadCandBadge(){try{const r=await fetch("/api/admin/candidates");if(!r.ok)return;const d=await r.json();const p=d.stats?.pending||0;const link=$("candLink");if(p>0)link.textContent="Candidates ("+p+")";else link.textContent="Candidates"}catch{}}
 
 async function loadReports(){try{const r=await fetch("/api/admin/reports");if(r.status===401){showLogin();return}const d=await r.json();reports=d.reports||[];if(d.stats){$("statTotal").textContent=d.stats.total;$("statPublished").textContent=d.stats.published;$("statDraft").textContent=d.stats.draft}renderTable()}catch{toast("Failed to load reports",true)}}
 
