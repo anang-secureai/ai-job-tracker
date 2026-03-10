@@ -26,30 +26,13 @@ The tracker includes only first-time announcements meeting strict editorial crit
 │   ├── GET /              → public dashboard      │
 │   ├── GET /admin         → admin panel           │
 │   ├── GET /api/reports   → public JSON API       │
-│   ├── /api/admin/*       → report CRUD (auth)    │
-│   └── /api/admin/candidates/* → review pipeline  │
+│   └── /api/admin/*       → report CRUD (auth)    │
 │                                                  │
 │   PostgreSQL                                     │
 │   ├── reports table      → curated dataset       │
-│   ├── candidates table   → review queue          │
 │   └── session table      → auth sessions         │
-│                                                  │
-│   Event Registry (external)                      │
-│   └── Daily scan → candidate articles            │
 └──────────────────────────────────────────────────┘
 ```
-
-## Candidate Pipeline
-
-The tracker integrates with [Event Registry](https://eventregistry.org) (newsapi.ai) to surface candidate articles for editorial review. The pipeline:
-
-1. **Scan** — A daily cron job (08:00 UTC) queries Event Registry for English-language news articles matching AI + layoff keyword phrases
-2. **Queue** — New articles are deduplicated and stored as candidates with PENDING status
-3. **Review** — Editors review candidates in the admin panel, reading the source article and determining relevance
-4. **Approve or reject** — Approved candidates become draft reports with source URL pre-filled; rejected candidates are archived and auto-cleaned after 60 days
-5. **Publish** — Editors add headcount, attribution classification, and company details, then toggle the report to Published
-
-Manual scans can also be triggered from the admin panel at any time.
 
 ## Public API
 
@@ -85,16 +68,15 @@ Returns all published reports as JSON. No authentication required. Cached for 5 
 
 ```
 ai-job-tracker/
-├── server.js              # Express app, routes, cron scheduling
+├── server.js              # Express app, routes
 ├── db.js                  # PostgreSQL connection, migrations, query helpers
-├── event-registry.js      # Event Registry API integration
 ├── seed.js                # Starter data importer
 ├── seed-data.js           # Initial dataset
 ├── package.json
 ├── Procfile
 └── public/
     ├── index.html         # Public dashboard (WCAG 2.1 AA compliant)
-    ├── admin.html         # Admin panel with Reports + Candidates tabs
+    ├── admin.html         # Admin panel for managing reports
     ├── styles.css         # Light theme matching secureainow.org
     ├── favicon.ico
     ├── favicon-32.png
@@ -118,7 +100,6 @@ Hosted on [Railway](https://railway.app) with auto-deploy from this repository.
 | `ADMIN_PASSWORD` | Yes | Shared password for admin panel access |
 | `SESSION_SECRET` | Yes | Random string for session signing |
 | `NODE_ENV` | Yes | Set to `production` |
-| `EVENT_REGISTRY_API_KEY` | No | API key from [newsapi.ai](https://newsapi.ai). Enables candidate scanning. Without it, the tracker works normally but candidates must be entered manually. |
 
 ### Custom Domain
 
@@ -130,7 +111,7 @@ To serve from a subdomain (e.g., `tracker.secureainow.org`):
 
 ## Data Sources
 
-Reports are sourced from AP, Reuters, CNBC, Bloomberg, the Wall Street Journal, the New York Times, the Washington Post, the Financial Times, TechCrunch, The Verge, Ars Technica, Wired, the BBC, and the Guardian, among others. Candidate articles are surfaced via Event Registry and verified by editors before publication.
+Reports are sourced from AP, Reuters, CNBC, Bloomberg, the Wall Street Journal, the New York Times, the Washington Post, the Financial Times, TechCrunch, The Verge, Ars Technica, Wired, the BBC, and the Guardian, among others.
 
 ## Accessibility
 
