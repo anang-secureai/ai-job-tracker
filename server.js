@@ -46,6 +46,8 @@ app.use(helmet({
         "https://js.hsforms.net",
         "https://connect.facebook.net",
         "https://static.ads-twitter.com",
+        "https://static.cloudflareinsights.com",
+        "https://pagead2.googlesyndication.com",
       ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
@@ -57,6 +59,8 @@ app.use(helmet({
         "https://www.facebook.com",
         "https://t.co",
         "https://analytics.twitter.com",
+        "https://pagead2.googlesyndication.com",
+        "https://forms-na2.hsforms.com",
       ],
       connectSrc: [
         "'self'",
@@ -66,6 +70,8 @@ app.use(helmet({
         "https://forms.hsforms.com",
         "https://www.facebook.com",
         "https://analytics.twitter.com",
+        "https://pagead2.googlesyndication.com",
+        "https://static.cloudflareinsights.com",
       ],
       frameSrc: [
         "'self'",
