@@ -174,8 +174,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p>The Alliance for Secure AI, <em>AI Job Loss Tracker</em>, accessed <span id="citeDate"></span>. Available at <a href="https://jobloss.ai">jobloss.ai</a>.</p>
       </div>
       <div class="cite-block">
-        <h3>Report an error or suggest a source</h3>
-        <p>If you've identified an AI-linked layoff not reflected here, or found an error in our data, contact us at <a id="contactLink"></a>.</p>
+        <h3>Have you lost your job to AI?</h3>
+        <p>We want to hear your story. Contact us at <a id="contactLink"></a>.</p>
       </div>
     </div>
   </section>
@@ -264,7 +264,7 @@ function render(reports) {
 
   // Contact link (built via JS to avoid Cloudflare email obfuscation)
   const cl = document.getElementById("contactLink");
-  if (cl) { const e = ["contact","secureainow.org"].join("@"); cl.href = "mailto:" + e; cl.textContent = e; cl.onclick = function(){ window.dataLayer.push({ event: 'contact_click' }); }; }
+  if (cl) { const e = ["jobloss","secureainow.org"].join("@"); cl.href = "mailto:" + e; cl.textContent = e; cl.onclick = function(){ window.dataLayer.push({ event: 'contact_click' }); }; }
 
   // Accordion clicks → dataLayer (once per session per accordion)
   var accordionFired = {};
