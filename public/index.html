@@ -562,21 +562,26 @@ function setText(id, t) { const el = document.getElementById(id); if (el) el.tex
   }
   var consent = getCookie('cookie_consent');
   if(consent === 'accepted'){
-    window.dataLayer.push({event:'consent_update',analytics_storage:'granted',ad_storage:'granted'});
+    gtag('consent', 'update', {
+      'analytics_storage': 'granted',
+      'ad_storage': 'granted'
+    });
   } else if(consent === 'declined'){
-    window.dataLayer.push({event:'consent_update',analytics_storage:'denied',ad_storage:'denied'});
+    // already denied by default, no action needed
   } else {
     document.getElementById('cookieConsent').style.display='block';
   }
   document.getElementById('cookieAccept').addEventListener('click',function(){
     setCookie('cookie_consent','accepted');
     document.getElementById('cookieConsent').style.display='none';
-    window.dataLayer.push({event:'consent_update',analytics_storage:'granted',ad_storage:'granted'});
+    gtag('consent', 'update', {
+      'analytics_storage': 'granted',
+      'ad_storage': 'granted'
+    });
   });
   document.getElementById('cookieDecline').addEventListener('click',function(){
     setCookie('cookie_consent','declined');
     document.getElementById('cookieConsent').style.display='none';
-    window.dataLayer.push({event:'consent_update',analytics_storage:'denied',ad_storage:'denied'});
   });
 })();
 </script>
