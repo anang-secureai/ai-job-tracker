@@ -48,7 +48,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://js-na2.hsforms.net/forms/embed/242450796.js" defer></script>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=5" />
 </head>
 <body class="dash-body">
 <!-- Google Tag Manager (noscript) -->
@@ -64,7 +64,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
            style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
            role="img" aria-label="The Alliance for Secure AI"></div>
     </a>
-    <h1 class="site-title">AI Job Loss Tracker</h1>
+    <p class="site-title">jobloss.ai</p>
   </div>
 </header>
 
@@ -76,6 +76,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="counter-left">
           <p class="counter-label" id="counter-heading">Total AI-linked job losses</p>
           <div class="counter-number" id="counterNumber" aria-live="polite">0</div>
+          <div class="counter-sub" id="counterSub"></div>
           <p class="counter-asof" id="asOfText"></p>
         </div>
         <div class="pace-box" id="paceBox">
@@ -106,29 +107,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </section>
 
-  <section class="signup-section" aria-labelledby="signup-heading">
-    <div class="signup-wrap">
-      <div class="signup-copy">
-        <h2 id="signup-heading">Stay in the loop</h2>
-        <p>New AI-linked layoffs tracked as they're reported. Subscribe for updates when the data changes.</p>
-      </div>
-      <div class="signup-form-area">
-        <div class="hs-form-frame" data-region="na2" data-form-id="6821d8fa-eaa5-41b3-b436-07b860fe206f" data-portal-id="242450796"></div>
-      </div>
-    </div>
-  </section>
-
   <!-- Reports table -->
   <section class="reports-section">
     <div class="reports-wrap">
       <div class="section-head">
         <h2>Reported layoffs</h2>
-        <span class="count-badge" id="tableBadge"></span>
+        <div class="section-head-right">
+          <div class="view-toggle" role="group" aria-label="View mode">
+            <button class="view-btn active" id="viewByEvent">By Event</button>
+            <button class="view-btn" id="viewByCompany">By Company</button>
+          </div>
+          <span class="count-badge" id="tableBadge"></span>
+        </div>
       </div>
       <div class="table-card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th scope="col">Company</th><th scope="col">Jobs lost</th><th scope="col">Industry</th><th scope="col">Running total</th><th scope="col">Workforce %</th></tr></thead>
+            <thead><tr id="tableHead"><th scope="col">Company</th><th scope="col">Jobs lost</th><th scope="col">Industry</th><th scope="col">Running total</th><th scope="col">Workforce %</th></tr></thead>
             <tbody id="tableBody"><tr><td colspan="5" class="loading-state"><div class="spinner"></div><br/>Loading...</td></tr></tbody>
           </table>
         </div>
@@ -168,6 +163,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </section>
 
+  <section class="signup-section" aria-labelledby="signup-heading">
+    <div class="signup-wrap">
+      <div class="signup-copy">
+        <h2 id="signup-heading">Stay in the loop</h2>
+        <p>New AI-linked layoffs tracked as they're reported. Subscribe for updates when the data changes.</p>
+      </div>
+      <div class="signup-form-area">
+        <div class="hs-form-frame" data-region="na2" data-form-id="6821d8fa-eaa5-41b3-b436-07b860fe206f" data-portal-id="242450796"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- Citation + contact -->
   <section class="cite-section">
     <div class="cite-wrap">
@@ -204,7 +211,7 @@ const ml  = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }
 const mtk = new Intl.DateTimeFormat("en-US", { month: "short" });
 const dfmt = d => new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(d);
 
-let cPts = [], cReady = false, rTimer = null, counted = [];
+let cPts = [], cReady = false, rTimer = null, counted = [], viewMode = "event", eventRows = [];
 window.addEventListener("resize", () => {
   if (rTimer) clearTimeout(rTimer);
   rTimer = setTimeout(() => { hideTip(); renderChart(counted); }, 150);
@@ -228,6 +235,7 @@ function render(reports) {
   const since = reports.filter(r => parseDate(r.date) >= BASELINE);
   counted = since.filter(r => C_TYPES.has(r.lossType) && C_ATTR.has(r.aiAttribution));
   const total = counted.reduce((s, r) => s + n(r.jobsLost), 0);
+  const usTotal = counted.filter(r => r.country === "United States").reduce((s, r) => s + n(r.jobsLost), 0);
 
   const dates = counted.map(r => parseDate(r.date)).sort((a, b) => a - b);
   const latest = dates[dates.length - 1] || new Date();
@@ -237,24 +245,29 @@ function render(reports) {
 
   // Meta
   setText("asOfText", `Updated ${counted.length ? dfmt(latest) : "—"} · ${counted.length} reports`);
-  setText("tableBadge", `${counted.length} reports`);
+  setText("tableBadge", `${counted.length} ${counted.length === 1 ? "report" : "reports"}`);
 
   // Chart
   renderChart(counted);
   initChartMouse();
 
+  // US sub-count
+  const subEl = document.getElementById("counterSub");
+  if (subEl && usTotal > 0) subEl.textContent = `${nf.format(usTotal)} in the United States`;
+
   // Animate
   animateCount("counterNumber", total, 2000);
 
   // Table
-  const rows = buildRows(counted);
-  buildTable(document.getElementById("tableBody"), rows);
-  buildCards(document.getElementById("mobileCards"), rows);
+  eventRows = buildRows(counted);
+  buildTable(document.getElementById("tableBody"), eventRows);
+  buildCards(document.getElementById("mobileCards"), eventRows);
+  initToggle();
 
   // Update log — show last 5 reports added
   const logEl = document.getElementById("updateLog");
-  if (logEl && rows.length) {
-    const recent = rows.slice(0, 5);
+  if (logEl && eventRows.length) {
+    const recent = eventRows.slice(0, 5);
     logEl.innerHTML = recent.map(r =>
       `<p><strong>${esc(dfmt(parseDate(r.date)))}</strong> — Added ${esc(r.company)} (${nf.format(n(r.jobsLost))} jobs). Source: ${srcLink(r)}</p>`
     ).join("");
@@ -323,7 +336,7 @@ function buildPace(reps) {
     deltaEl.textContent = `${change > 0 ? "+" : ""}${Math.round(change)}% vs prior 30 days`;
   } else if (thisTotal > 0) {
     paceEl.textContent = nf.format(thisTotal);
-    deltaEl.textContent = "No prior period data";
+    deltaEl.textContent = "—";
   } else {
     paceEl.textContent = "—";
     deltaEl.textContent = "No recent reports";
@@ -425,6 +438,95 @@ function buildCards(container, rows) {
   });
 }
 
+function buildCompanyRows(reps) {
+  const map = new Map();
+  reps.forEach(r => {
+    if (!map.has(r.company)) map.set(r.company, { company: r.company, totalJobs: 0, events: 0, industries: new Set(), attributions: new Set(), workforce: 0 });
+    const e = map.get(r.company);
+    e.totalJobs += n(r.jobsLost);
+    e.events++;
+    if (r.industry) e.industries.add(r.industry);
+    if (r.aiAttribution) e.attributions.add(r.aiAttribution);
+    if (n(r.workforce) > 0) e.workforce = n(r.workforce);
+  });
+  return [...map.values()].sort((a, b) => b.totalJobs - a.totalJobs);
+}
+
+function topAttr(attributions) {
+  const s = [...attributions];
+  return s.includes("EXPLICIT") ? "EXPLICIT" : s.includes("BLAMED") ? "BLAMED" : s.includes("MIXED") ? "MIXED" : s[0] || "EXPLICIT";
+}
+
+function buildCompanyTable(body, companies) {
+  body.innerHTML = "";
+  if (!companies.length) { body.innerHTML = '<tr><td colspan="5" class="loading-state">No reports yet.</td></tr>'; return; }
+  const threshold = companies[Math.max(0, Math.floor(companies.length * 0.25) - 1)]?.totalJobs || 5000;
+  companies.forEach(c => {
+    const tr = document.createElement("tr");
+    if (c.totalJobs >= threshold) tr.classList.add("major");
+    const wf = c.workforce;
+    const inds = [...c.industries].join(", ") || "Unknown";
+    const evtLabel = c.events === 1 ? "1 event" : `${c.events} events`;
+    tr.innerHTML = `
+      <td><span class="cell-company">${esc(c.company)}</span></td>
+      <td><span class="cell-jobs">${nf.format(c.totalJobs)}</span> ${attrTag(topAttr(c.attributions))}</td>
+      <td><span style="font-size:0.78rem;color:var(--text-dim);font-weight:600">${esc(evtLabel)}</span></td>
+      <td>${esc(inds)}</td>
+      <td>${wf > 0 ? `<span class="pct-pill">${pf.format((c.totalJobs / wf) * 100)}%</span><span class="cell-meta">of ${nf.format(wf)}</span>` : '<span class="pct-pill">n/a</span>'}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+function buildCompanyCards(container, companies) {
+  container.innerHTML = "";
+  if (!companies.length) { container.innerHTML = '<div class="loading-state">No reports yet.</div>'; return; }
+  const threshold = companies[Math.max(0, Math.floor(companies.length * 0.25) - 1)]?.totalJobs || 5000;
+  companies.forEach(c => {
+    const wf = c.workforce;
+    const wt = wf > 0 ? `${pf.format((c.totalJobs / wf) * 100)}% of ${nf.format(wf)}` : "n/a";
+    const card = document.createElement("div");
+    card.className = "report-card" + (c.totalJobs >= threshold ? " major" : "");
+    card.innerHTML = `
+      <div class="rc-top">
+        <div><div class="rc-company">${esc(c.company)}</div><div class="rc-meta">${c.events === 1 ? "1 layoff event" : `${c.events} layoff events`}</div></div>
+        <div class="rc-jobs">${nf.format(c.totalJobs)}</div>
+      </div>
+      <div class="rc-grid">
+        <div><div class="rc-label">Attribution</div><div class="rc-value">${attrTag(topAttr(c.attributions))}</div></div>
+        <div><div class="rc-label">Industry</div><div class="rc-value">${esc([...c.industries].join(", ") || "Unknown")}</div></div>
+        <div><div class="rc-label">Workforce</div><div class="rc-value">${esc(wt)}</div></div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function setView(mode) {
+  viewMode = mode;
+  const body = document.getElementById("tableBody");
+  const cards = document.getElementById("mobileCards");
+  const badge = document.getElementById("tableBadge");
+  const head = document.getElementById("tableHead");
+  document.getElementById("viewByEvent").classList.toggle("active", mode === "event");
+  document.getElementById("viewByCompany").classList.toggle("active", mode === "company");
+  if (mode === "company") {
+    const cos = buildCompanyRows(counted);
+    if (head) head.innerHTML = '<th scope="col">Company</th><th scope="col">Total jobs lost</th><th scope="col">Events</th><th scope="col">Industry</th><th scope="col">Workforce %</th>';
+    buildCompanyTable(body, cos);
+    buildCompanyCards(cards, cos);
+    if (badge) badge.textContent = `${cos.length} ${cos.length === 1 ? "company" : "companies"}`;
+  } else {
+    if (head) head.innerHTML = '<th scope="col">Company</th><th scope="col">Jobs lost</th><th scope="col">Industry</th><th scope="col">Running total</th><th scope="col">Workforce %</th>';
+    buildTable(body, eventRows);
+    buildCards(cards, eventRows);
+    if (badge) badge.textContent = `${eventRows.length} reports`;
+  }
+}
+
+function initToggle() {
+  document.getElementById("viewByEvent")?.addEventListener("click", () => setView("event"));
+  document.getElementById("viewByCompany")?.addEventListener("click", () => setView("company"));
+}
+
 /* ═══ Chart — dark-on-light colors ═══ */
 function renderChart(reps) {
   const canvas = document.getElementById("monthlyLossChart");
@@ -488,7 +590,7 @@ function renderChart(reps) {
   });
 
   cPts = pts.map((p, i) => ({ x: xS(i), y: yS(p.total), date: p.date, total: p.total }));
-  if (sum) { const last = pts[pts.length - 1]; sum.textContent = `${nf.format(last.total)} cumulative through ${ml.format(last.date)}.`; }
+  if (sum) { const first = pts[0], last = pts[pts.length - 1]; sum.textContent = `${ml.format(first.date)} – ${ml.format(last.date)}`; }
 }
 
 function getEl(c) {
