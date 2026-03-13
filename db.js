@@ -1,11 +1,12 @@
 // db.js — PostgreSQL connection, migrations, and query helpers
 const { Pool } = require("pg");
 
+// Enable SSL for any production database URL (Railway, Heroku, Render, etc.).
+// Set DB_SSL=false explicitly to disable (e.g. local dev with a plain URL).
+const useSSL = process.env.DB_SSL !== "false" && process.env.NODE_ENV === "production";
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes("railway")
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 
 // ── Migrations ───────────────────────────────────────────────────────

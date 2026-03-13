@@ -560,7 +560,8 @@ function setText(id, t) { const el = document.getElementById(id); if (el) el.tex
     return m ? m[2] : null;
   }
   function setCookie(name,val){
-    document.cookie = name+'='+val+';path=/;max-age=31536000;SameSite=Lax';
+    var secure = location.protocol === 'https:' ? ';Secure' : '';
+    document.cookie = name+'='+val+';path=/;max-age=31536000;SameSite=Lax'+secure;
   }
   var consent = getCookie('cookie_consent');
   if(consent === 'accepted'){

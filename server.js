@@ -19,15 +19,18 @@ if (!ADMIN_PASSWORD) {
   console.error("[WARN] ADMIN_PASSWORD is not set — admin login will be disabled.");
 }
 
-const SESSION_SECRET = process.env.SESSION_SECRET || "change-me-in-production-" + Math.random();
-
-// Hash password at startup (so we never compare plaintext)
-let passwordHash;
-if (ADMIN_PASSWORD) {
-  (async () => {
-    passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
-  })();
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === "production") {
+  console.error("[FATAL] SESSION_SECRET is not set in production. Refusing to start.");
+  process.exit(1);
 }
+const SESSION_SECRET = process.env.SESSION_SECRET || "dev-only-insecure-secret-do-not-use-in-prod";
+
+// Hash password at startup (so we never compare plaintext).
+// Stored as a Promise so the login route can await it safely even if a
+// request arrives before the async hash finishes.
+const passwordHashPromise = ADMIN_PASSWORD
+  ? bcrypt.hash(ADMIN_PASSWORD, 10)
+  : Promise.resolve(null);
 
 // ── Middleware ────────────────────────────────────────────────────────
 
@@ -178,7 +181,10 @@ app.post("/api/login", async (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ ok: false, error: "Password required" });
 
-  const valid = await bcrypt.compare(password, passwordHash);
+  const hash = await passwordHashPromise;
+  if (!hash) return res.status(503).json({ ok: false, error: "Admin login is disabled" });
+
+  const valid = await bcrypt.compare(password, hash);
   if (!valid) return res.status(401).json({ ok: false, error: "Wrong password" });
 
   req.session.authenticated = true;
@@ -209,12 +215,24 @@ app.get("/api/admin/reports", requireAuth, async (req, res) => {
   }
 });
 
+// Validate that :id is a positive integer
+function validId(raw) {
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 // POST /api/admin/reports — create a report
 app.post("/api/admin/reports", requireAuth, async (req, res) => {
   try {
     const { date, company, jobs_lost } = req.body;
     if (!date || !company || !jobs_lost) {
       return res.status(400).json({ ok: false, error: "date, company, and jobs_lost are required" });
+    }
+    if (isNaN(parseInt(jobs_lost, 10)) || parseInt(jobs_lost, 10) < 1) {
+      return res.status(400).json({ ok: false, error: "jobs_lost must be a positive integer" });
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) {
+      return res.status(400).json({ ok: false, error: "date must be a valid YYYY-MM-DD value" });
     }
     const report = await db.createReport(req.body);
     res.status(201).json({ ok: true, report });
@@ -226,8 +244,20 @@ app.post("/api/admin/reports", requireAuth, async (req, res) => {
 
 // PUT /api/admin/reports/:id — update a report
 app.put("/api/admin/reports/:id", requireAuth, async (req, res) => {
+  const id = validId(req.params.id);
+  if (!id) return res.status(400).json({ ok: false, error: "Invalid id" });
   try {
-    const report = await db.updateReport(req.params.id, req.body);
+    const { date, company, jobs_lost } = req.body;
+    if (!date || !company || !jobs_lost) {
+      return res.status(400).json({ ok: false, error: "date, company, and jobs_lost are required" });
+    }
+    if (isNaN(parseInt(jobs_lost, 10)) || parseInt(jobs_lost, 10) < 1) {
+      return res.status(400).json({ ok: false, error: "jobs_lost must be a positive integer" });
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) {
+      return res.status(400).json({ ok: false, error: "date must be a valid YYYY-MM-DD value" });
+    }
+    const report = await db.updateReport(id, req.body);
     if (!report) return res.status(404).json({ ok: false, error: "Not found" });
     res.json({ ok: true, report });
   } catch (err) {
@@ -238,8 +268,10 @@ app.put("/api/admin/reports/:id", requireAuth, async (req, res) => {
 
 // DELETE /api/admin/reports/:id
 app.delete("/api/admin/reports/:id", requireAuth, async (req, res) => {
+  const id = validId(req.params.id);
+  if (!id) return res.status(400).json({ ok: false, error: "Invalid id" });
   try {
-    const deleted = await db.deleteReport(req.params.id);
+    const deleted = await db.deleteReport(id);
     if (!deleted) return res.status(404).json({ ok: false, error: "Not found" });
     res.json({ ok: true });
   } catch (err) {
@@ -250,8 +282,10 @@ app.delete("/api/admin/reports/:id", requireAuth, async (req, res) => {
 
 // PATCH /api/admin/reports/:id/toggle — toggle include
 app.patch("/api/admin/reports/:id/toggle", requireAuth, async (req, res) => {
+  const id = validId(req.params.id);
+  if (!id) return res.status(400).json({ ok: false, error: "Invalid id" });
   try {
-    const report = await db.toggleInclude(req.params.id);
+    const report = await db.toggleInclude(id);
     if (!report) return res.status(404).json({ ok: false, error: "Not found" });
     res.json({ ok: true, report });
   } catch (err) {
@@ -265,7 +299,6 @@ app.patch("/api/admin/reports/:id/toggle", requireAuth, async (req, res) => {
 // ── OG image — dynamic SVG card with live stats ─────────────────────
 app.get("/og-image", async (req, res) => {
   try {
-    await ensureInit();
     const reports = await db.getPublicReports();
     const BASELINE = new Date(2025, 0, 1);
     const counted = reports.filter(r => {
@@ -338,6 +371,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/admin", (req, res) => {
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
   res.sendFile(path.join(__dirname, "public/admin.html"));
 });
 
