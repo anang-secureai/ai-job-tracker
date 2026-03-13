@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media Kit & Ally Toolkit — AI Job Loss Tracker</title>
+  <meta name="description" content="Ready-to-use copy, shareable assets, key data points, and messaging guidelines for amplifying the AI Job Loss Tracker." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap" rel="stylesheet" />
+  <style>
+/* ═══════════════════════════════════════════════════════════
+   Design tokens — match jobloss.ai exactly
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --seaweed:        #192d17;
+  --seaweed-mid:    #2a4a26;
+  --gamboge:        #c07f10;
+  --gamboge-light:  #e4991b;
+  --gamboge-bg:     #fef8ed;
+  --green:          #3d6b35;
+  --green-light:    #709663;
+  --green-bg:       #f0f5ee;
+  --green-bg-alt:   #e5ede2;
+  --bg:             #ffffff;
+  --bg-warm:        #faf8f5;
+  --bg-cool:        #f3f6f2;
+  --text:           #1a2118;
+  --text-mid:       #4a5648;
+  --text-dim:       #6b7a64;
+  --text-on-dark:   #f3f7f1;
+  --text-on-dark-mid: #b8c8b1;
+  --border:         #d4ddd0;
+  --border-light:   #e8ede5;
+  --border-focus:   #3d6b35;
+  --red:            #b03a2e;
+  --shadow-sm:      0 1px 3px rgba(25,45,23,0.08);
+  --shadow-md:      0 4px 12px rgba(25,45,23,0.1);
+  --shadow-lg:      0 8px 24px rgba(25,45,23,0.12);
+  /* Attribution pill palette */
+  --pill-explicit-bg:     #e6f4e6;
+  --pill-explicit-text:   #1a5c1a;
+  --pill-explicit-border: #b8dbb8;
+  --pill-blamed-bg:       #fef8ed;
+  --pill-blamed-text:     #7a5a0a;
+  --pill-blamed-border:   #e8d5aa;
+  --pill-mixed-bg:        #f3f6f2;
+  --pill-mixed-text:      #4a5648;
+  --pill-mixed-border:    #d4ddd0;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: "Libre Franklin", "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  background: var(--bg-warm);
+}
+:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+img { max-width: 100%; height: auto; }
+
+.logo-mask {
+  background: var(--text-on-dark);
+  -webkit-mask: var(--mask-img) no-repeat left center / contain;
+  mask: var(--mask-img) no-repeat left center / contain;
+  -webkit-mask-mode: luminance; mask-mode: luminance;
+}
+
+/* ═══ HEADER ═══ */
+.site-header {
+  background: linear-gradient(135deg, var(--seaweed) 0%, #1e3a1a 100%);
+  padding: 1rem 0 1.1rem;
+}
+.site-header .wrap {
+  width: min(1100px, 92vw); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.brand-logo { display: block; width: min(140px, 30vw); height: auto; aspect-ratio: 1600/583; flex-shrink: 0; }
+.site-title { margin: 0; font-size: clamp(0.9rem, 2vw, 1.2rem); font-weight: 800; color: #f3f7f1; letter-spacing: -0.01em; }
+
+/* ═══ FOOTER ═══ */
+.site-footer { background: var(--seaweed); padding: 1.4rem 0; }
+.footer-inner { width: min(1100px, 92vw); margin: 0 auto; display: flex; align-items: center; gap: 1.2rem; }
+.footer-logo { width: 120px; height: auto; aspect-ratio: 1600/583; }
+.site-footer p { margin: 0; color: var(--text-on-dark-mid); font-size: 0.72rem; line-height: 1.45; }
+.site-footer a { color: var(--gamboge-light); text-decoration: underline; }
+.site-footer a:hover { color: #fff; }
+
+/* ═══ LAYOUT ═══ */
+.page { width: min(1100px, 92vw); margin: 0 auto; }
+.section { padding: 2.5rem 0; }
+.section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin: 0 0 0.3rem; }
+.section-label.on-dark { color: var(--gamboge-light); }
+.section-title { font-size: clamp(1.2rem, 3vw, 1.6rem); font-weight: 900; color: var(--seaweed); margin: 0 0 0.6rem; line-height: 1.12; letter-spacing: -0.02em; }
+.section-title.on-dark { color: var(--text-on-dark); }
+.section-subtitle { font-size: 0.88rem; color: var(--text-mid); line-height: 1.55; max-width: 68ch; margin: 0 0 1.25rem; }
+.section-subtitle.on-dark { color: var(--text-on-dark-mid); }
+.section-divider { border: none; border-top: 1px solid var(--border-light); margin: 0; }
+
+/* ═══ HERO ═══ */
+.hero-banner { background: var(--seaweed); padding: 2.5rem 0 2.2rem; border-top: 1px solid rgba(255,255,255,0.08); }
+.hero-banner h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; color: var(--text-on-dark); line-height: 1.1; margin: 0 0 0.6rem; max-width: 22ch; }
+.hero-banner p { font-size: 0.92rem; color: var(--text-on-dark-mid); line-height: 1.55; max-width: 60ch; margin: 0; }
+
+/* ═══ TOC ═══ */
+.toc-wrap { position: sticky; top: 0; z-index: 50; background: var(--bg); border-bottom: 1px solid var(--border); box-shadow: 0 2px 8px rgba(25,45,23,0.07); }
+.toc { width: min(1100px, 92vw); margin: 0 auto; padding: 0; display: flex; align-items: center; gap: 0; overflow-x: auto; scrollbar-width: none; }
+.toc::-webkit-scrollbar { display: none; }
+.toc-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); white-space: nowrap; padding: 0.75rem 1rem 0.75rem 0; border-right: 1px solid var(--border-light); margin-right: 0.75rem; flex-shrink: 0; }
+.toc-list { display: flex; gap: 0; list-style: none; margin: 0; padding: 0; }
+.toc-list a { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-mid); text-decoration: none; padding: 0.75rem 0.9rem; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
+.toc-list a:hover { color: var(--seaweed); }
+.toc-list a.active { color: var(--green); border-bottom-color: var(--green); font-weight: 700; }
+
+/* ═══ DARK SECTIONS ═══ */
+.section-dark { background: linear-gradient(135deg, var(--seaweed) 0%, #1d3819 100%); padding: 2.5rem 0; position: relative; overflow: hidden; }
+.section-dark::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity: 0.4; pointer-events: none; }
+.section-dark .page { position: relative; z-index: 1; }
+
+/* ═══ CAMPAIGN ═══ */
+.press-release-badge { display: inline-flex; align-items: center; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gamboge-light); border: 1px solid rgba(228,153,27,0.4); padding: 0.2rem 0.7rem; border-radius: 999px; background: rgba(228,153,27,0.08); margin-bottom: 0.75rem; }
+.campaign-headline { font-size: clamp(1.5rem, 3.5vw, 2.3rem); font-weight: 900; color: var(--text-on-dark); line-height: 1.08; letter-spacing: -0.02em; max-width: 620px; margin: 0 0 1.75rem; }
+.campaign-headline .accent { color: var(--gamboge-light); }
+.dark-rule { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0 0 1.5rem; }
+.campaign-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+.campaign-col-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gamboge-light); margin: 0 0 0.75rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chip { font-size: 0.76rem; font-weight: 700; color: var(--text-on-dark); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 0.28rem 0.55rem; white-space: nowrap; }
+.chip.national { background: rgba(61,107,53,0.3); border-color: rgba(61,107,53,0.55); }
+.dist-list { display: flex; flex-direction: column; gap: 0.65rem; padding: 0; margin: 0; list-style: none; }
+.dist-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.84rem; font-weight: 600; color: var(--text-on-dark); line-height: 1.4; }
+.dist-list li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--gamboge-light); flex-shrink: 0; margin-top: 0.5rem; }
+.dist-list li span { color: var(--text-on-dark-mid); font-weight: 400; }
+.state-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.state-tag { font-size: 0.75rem; font-weight: 700; color: var(--text-on-dark-mid); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 0.22rem 0.5rem; white-space: nowrap; }
+.state-tag.highlight { color: var(--text-on-dark); background: rgba(61,107,53,0.25); border-color: rgba(61,107,53,0.45); }
+.campaign-footer-note { font-size: 0.76rem; font-weight: 500; color: rgba(184,200,177,0.6); margin: 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.85rem; }
+
+/* ═══ CARDS ═══ */
+.card { background: var(--bg); border: 1px solid var(--border); border-radius: 0.65rem; padding: 1rem 1.15rem; box-shadow: var(--shadow-sm); }
+.card-grid { display: grid; gap: 0.75rem; }
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid-2col { grid-template-columns: repeat(2, 1fr); }
+.card h3 { font-size: 0.88rem; font-weight: 800; color: var(--seaweed); margin: 0 0 0.3rem; }
+.card p { font-size: 0.84rem; color: var(--text-mid); line-height: 1.5; margin: 0; }
+.fact-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin: 0 0 0.15rem; }
+.fact-value { font-size: 0.88rem; font-weight: 700; color: var(--seaweed); margin: 0; }
+.fact-value a { color: var(--green); text-decoration: none; border-bottom: 1px solid rgba(61,107,53,0.3); }
+.fact-value a:hover { color: var(--seaweed); }
+
+/* ═══ METHODOLOGY ═══ */
+.methodology-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+.method-col { display: flex; flex-direction: column; gap: 0.75rem; }
+.method-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.15rem; box-shadow: var(--shadow-sm); }
+.method-block.include { border-left: 3px solid var(--green); }
+.method-block.exclude { border-left: 3px solid var(--border); }
+.method-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 0.5rem; }
+.method-label.include { color: var(--green); }
+.method-label.exclude { color: var(--text-dim); }
+.method-block p { font-size: 0.84rem; font-weight: 500; color: var(--text); line-height: 1.5; margin: 0; }
+.method-block p strong { font-weight: 700; }
+.attr-col-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin: 0 0 0.65rem; }
+.attr-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; display: flex; align-items: flex-start; gap: 0.85rem; box-shadow: var(--shadow-sm); margin-bottom: 0.65rem; }
+.attr-block:last-child { margin-bottom: 0; }
+.attr-pill { flex-shrink: 0; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.28rem 0.6rem; border-radius: 999px; margin-top: 1px; white-space: nowrap; }
+.attr-pill.explicit { background: var(--pill-explicit-bg); color: var(--pill-explicit-text); border: 1px solid var(--pill-explicit-border); }
+.attr-pill.blamed { background: var(--pill-blamed-bg); color: var(--pill-blamed-text); border: 1px solid var(--pill-blamed-border); }
+.attr-pill.mixed { background: var(--pill-mixed-bg); color: var(--pill-mixed-text); border: 1px solid var(--pill-mixed-border); }
+.attr-block p { font-size: 0.82rem; font-weight: 500; color: var(--text); line-height: 1.5; margin: 0; }
+.attr-block p strong { font-weight: 700; color: var(--seaweed); }
+
+/* ═══ BY THE NUMBERS ═══ */
+.numbers-panel { display: grid; grid-template-columns: 260px 1fr; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-md); margin: 1rem 0 1.5rem; background: var(--bg); }
+.numbers-dark { background: linear-gradient(160deg, #192d17 0%, #1e3a1a 100%); padding: 1.75rem 1.5rem; display: flex; flex-direction: column; position: relative; }
+.numbers-dark::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 55%; background: radial-gradient(ellipse at 30% 25%, rgba(61,107,53,0.4) 0%, transparent 70%); pointer-events: none; }
+.numbers-dark > * { position: relative; z-index: 1; }
+.hero-eyebrow { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-on-dark-mid); margin: 0 0 0.5rem; }
+.hero-number { font-size: 4.5rem; font-weight: 900; line-height: 0.9; letter-spacing: -0.03em; color: var(--text-on-dark); font-variant-numeric: tabular-nums; margin-bottom: 0.6rem; }
+.hero-number .unit { font-size: 2.2rem; font-weight: 800; color: var(--gamboge-light); }
+.hero-descriptor { font-size: 0.84rem; font-weight: 600; color: var(--text-on-dark-mid); line-height: 1.4; flex: 1; }
+.numbers-methodology { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; margin-top: 1rem; }
+.numbers-methodology .meta-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(184,200,177,0.55); margin: 0 0 0.35rem; }
+.numbers-methodology p { font-size: 0.76rem; font-weight: 500; color: rgba(184,200,177,0.75); line-height: 1.5; margin: 0; }
+.numbers-light { padding: 1.75rem 1.5rem; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1rem; }
+.stat-cell { background: var(--bg-warm); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; position: relative; box-shadow: var(--shadow-sm); }
+.stat-cell-accent { position: absolute; top: 0; right: 0; width: 4px; height: 36px; border-radius: 0 8px 0 0; }
+.stat-cell-accent.seaweed { background: var(--seaweed); }
+.stat-cell-accent.gamboge { background: var(--gamboge-light); }
+.stat-cell-accent.green { background: var(--green); }
+.stat-cell-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin: 0 0 0.4rem; }
+.stat-cell-number { font-size: 2.4rem; font-weight: 900; letter-spacing: -0.025em; line-height: 1; color: var(--seaweed); font-variant-numeric: tabular-nums; margin-bottom: 0.35rem; }
+.stat-cell-number.gamboge { color: var(--gamboge); }
+.stat-cell-number.green { color: var(--green); }
+.stat-cell-sub { font-size: 0.74rem; font-weight: 500; color: var(--text-dim); line-height: 1.4; margin: 0; }
+.attr-breakdown-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; padding-top: 0.85rem; border-top: 1px solid var(--border-light); margin-bottom: 0.85rem; }
+.attr-breakdown-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+.breakdown-pill { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 999px; }
+.breakdown-pill.explicit { background: var(--pill-explicit-bg); color: var(--pill-explicit-text); border: 1px solid var(--pill-explicit-border); }
+.breakdown-pill.blamed { background: var(--pill-blamed-bg); color: var(--pill-blamed-text); border: 1px solid var(--pill-blamed-border); }
+.breakdown-pill.mixed { background: var(--pill-mixed-bg); color: var(--pill-mixed-text); border: 1px solid var(--pill-mixed-border); }
+.breakdown-pill .pct { font-weight: 900; font-size: 0.82rem; }
+
+/* ═══ CALLOUT ═══ */
+.callout-amber { background: var(--gamboge-bg); border: 1px solid #e8d5aa; border-left: 3px solid var(--gamboge-light); border-radius: 0.55rem; padding: 0.7rem 1rem; margin-bottom: 1rem; }
+.callout-amber p { font-size: 0.82rem; font-weight: 600; color: #7a5a0a; margin: 0; line-height: 1.45; }
+.data-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.data-list li { font-size: 0.84rem; color: var(--text); line-height: 1.5; padding-left: 1.15rem; position: relative; }
+.data-list li::before { content: ""; position: absolute; left: 0; top: 0.5rem; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+/* ═══ CEO STATEMENT ═══ */
+.ceo-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse at center, rgba(61,107,53,0.28) 0%, transparent 68%); pointer-events: none; }
+.ceo-accent-rule { width: 36px; height: 2px; background: var(--gamboge-light); border-radius: 1px; margin-bottom: 1.25rem; }
+.ceo-quote-mark { font-size: 9rem; font-weight: 900; line-height: 0.8; color: rgba(61,107,53,0.22); font-family: "Libre Franklin", serif; pointer-events: none; user-select: none; margin-bottom: -1.5rem; display: block; }
+.ceo-quote-text { font-size: clamp(1.1rem, 2.8vw, 1.55rem); font-weight: 700; font-style: italic; color: var(--text-on-dark); line-height: 1.4; letter-spacing: -0.01em; max-width: 62ch; margin: 0 0 1.75rem; }
+.ceo-quote-text .key { color: #fff; font-weight: 900; font-style: italic; }
+.ceo-attr-name { font-size: 1rem; font-weight: 800; color: var(--text-on-dark); letter-spacing: 0.01em; }
+.ceo-attr-name::before { content: "— "; color: var(--gamboge-light); font-weight: 700; }
+.ceo-attr-title { font-size: 0.82rem; font-weight: 500; color: var(--text-on-dark-mid); margin-top: 0.15rem; }
+.vert-label { position: absolute; right: 2.5rem; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(184,200,177,0.18); white-space: nowrap; }
+
+/* ═══ TABS ═══ */
+.tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 1rem; overflow-x: auto; }
+.tab-btn { padding: 0.55rem 1rem; font-family: inherit; font-size: 0.82rem; font-weight: 700; color: var(--text-dim); background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--seaweed); border-bottom-color: var(--green); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ═══ CORRECTIONS CALLOUT ═══ */
+.callout-correction { background: var(--bg-cool); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 0.55rem; padding: 0.7rem 1rem; margin-top: 1.5rem; }
+.callout-correction p { font-size: 0.82rem; color: var(--text-mid); margin: 0; line-height: 1.45; }
+.callout-correction a { color: var(--green); font-weight: 600; }
+
+/* ═══ COPY ALL ═══ */
+.copy-all-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+.copy-all-bar p { font-size: 0.84rem; color: var(--text-mid); margin: 0; }
+.copy-all-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: 0.4rem; border: 1px solid var(--border); background: var(--bg-cool); color: var(--text-mid); font-family: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.copy-all-btn:hover { background: var(--green); border-color: var(--green); color: #fff; }
+.copy-all-btn.copied { background: var(--green); border-color: var(--green); color: #fff; pointer-events: none; }
+
+/* ═══ VIEW FULL SIZE ═══ */
+.view-btn { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-decoration: none; border-bottom: 1px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+.view-btn:hover { color: var(--green); border-bottom-color: rgba(61,107,53,0.4); }
+
+/* ═══ COPY BLOCKS ═══ */
+.copy-block { background: var(--bg-cool); border: 1px solid var(--border); border-radius: 0.55rem; padding: 0.85rem 1rem; margin-bottom: 0.65rem; }
+.copy-block:last-child { margin-bottom: 0; }
+.copy-text { font-size: 0.84rem; color: var(--text); line-height: 1.55; white-space: pre-wrap; margin: 0 0 0.5rem; }
+.copy-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid var(--green); background: var(--bg); color: var(--green); font-family: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.15s; min-width: 88px; justify-content: center; }
+.copy-btn:hover { background: var(--green); color: #fff; }
+.copy-btn.copying { opacity: 0.65; pointer-events: none; }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); pointer-events: none; }
+.copy-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* ═══ DOS & DONTS ═══ */
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+.dd-col h3 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.5rem; }
+.dd-col.do h3 { color: var(--green); }
+.dd-col.dont h3 { color: var(--red); }
+.dd-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.dd-col li { font-size: 0.84rem; color: var(--text-mid); line-height: 1.45; padding-left: 1.35rem; position: relative; }
+.dd-col.do li::before { content: "✓"; position: absolute; left: 0; top: 0; font-weight: 800; color: var(--green); font-size: 0.82rem; }
+.dd-col.dont li::before { content: "✕"; position: absolute; left: 0.1rem; top: 0; font-weight: 800; color: var(--red); font-size: 0.78rem; }
+
+/* ═══ MINI TABLE ═══ */
+.mini-table { width: 100%; border-collapse: collapse; }
+.mini-table thead th { text-align: left; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); background: var(--bg-cool); padding: 0.5rem 0.7rem; font-weight: 700; border-bottom: 1px solid var(--border); }
+.mini-table tbody td { padding: 0.55rem 0.7rem; font-size: 0.84rem; color: var(--text); border-bottom: 1px solid var(--border-light); vertical-align: top; }
+.mini-table tbody tr:nth-child(even) { background: var(--bg-warm); }
+
+/* ═══ ASSET CARDS ═══ */
+.asset-card { background: var(--bg); border: 1px solid var(--border); border-radius: 0.65rem; padding: 1rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 0.5rem; }
+.asset-type { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+.asset-card h4 { font-size: 0.88rem; font-weight: 800; color: var(--seaweed); margin: 0; }
+.asset-card p { font-size: 0.78rem; color: var(--text-mid); margin: 0; line-height: 1.4; }
+.asset-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 0.4rem; border: 1px solid var(--border); background: var(--bg-cool); color: var(--text-mid); font-family: inherit; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.15s; align-self: flex-start; }
+.asset-btn:hover { background: var(--green); border-color: var(--green); color: #fff; }
+.swatch-row { display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 0.3rem; }
+.swatch { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; font-weight: 700; color: var(--text-mid); }
+.swatch-dot { width: 24px; height: 24px; border-radius: 0.3rem; border: 1px solid var(--border); flex-shrink: 0; }
+
+/* ═══ PRESS CARD PREVIEWS ═══ */
+.press-asset { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.press-card-outer { width: 100%; aspect-ratio: 1200 / 628; overflow: hidden; position: relative; border-radius: 6px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); background: var(--seaweed); display: flex; align-items: center; justify-content: center; }
+.press-card-outer iframe { position: absolute; top: 0; left: 0; width: 1200px; height: 628px; transform-origin: top left; border: none; pointer-events: none; display: block; }
+.press-card-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-on-dark-mid); pointer-events: none; user-select: none; }
+.press-card-placeholder svg { opacity: 0.4; }
+.press-card-placeholder span { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.5; }
+.press-asset-meta { display: flex; align-items: center; gap: 0.4rem 0.6rem; flex-wrap: wrap; }
+.press-asset-meta h4 { font-size: 0.82rem; font-weight: 800; color: var(--seaweed); margin: 0; white-space: nowrap; }
+.press-asset-meta p { font-size: 0.74rem; color: var(--text-dim); margin: 0; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ═══ CONTACT ═══ */
+.contact-card { background: var(--bg); border: 1px solid var(--border); border-radius: 0.65rem; padding: 1.25rem 1.4rem; box-shadow: var(--shadow-sm); max-width: 360px; }
+.contact-card h4 { font-size: 1rem; font-weight: 800; color: var(--seaweed); margin: 0 0 0.2rem; }
+.contact-card .contact-role { font-size: 0.8rem; color: var(--text-dim); margin: 0 0 0.55rem; line-height: 1.4; }
+.contact-card .contact-email { font-size: 0.9rem; font-weight: 700; color: var(--green); text-decoration: none; border-bottom: 1.5px solid rgba(61,107,53,0.3); transition: color 0.15s, border-color 0.15s; }
+.contact-card .contact-email:hover { color: var(--seaweed); border-bottom-color: var(--seaweed); }
+
+/* ═══ BACK TO TOP ═══ */
+.back-top { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50; width: 44px; height: 44px; border-radius: 50%; background: var(--seaweed); border: none; color: var(--text-on-dark); cursor: pointer; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s; transform: translateY(8px); }
+.back-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.back-top:hover { background: var(--seaweed-mid); }
+.back-top svg { width: 18px; height: 18px; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .site-header { padding: 0.85rem 0; }
+  .brand-logo { width: min(110px, 30vw); }
+  .hero-banner { padding: 1.8rem 0 1.6rem; }
+  .campaign-cols { grid-template-columns: 1fr; gap: 1.5rem; }
+  .card-grid-2, .card-grid-3, .card-grid-2col { grid-template-columns: 1fr; }
+  .methodology-grid, .dd-grid { grid-template-columns: 1fr; }
+  .numbers-panel { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .footer-inner { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+  .toc { margin-top: -0.8rem; }
+  .vert-label { display: none; }
+  .ceo-quote-mark { font-size: 6rem; }
+}
+@media (max-width: 420px) {
+  .brand-logo { width: min(90px, 32vw); }
+  .stat-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="site-header" role="banner">
+  <div class="wrap">
+    <a href="https://secureainow.org" target="_blank" rel="noopener">
+      <div class="brand-logo logo-mask"
+           style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
+           role="img" aria-label="The Alliance for Secure AI"></div>
+    </a>
+    <h1 class="site-title">AI Job Loss Tracker</h1>
+  </div>
+</header>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero-banner" id="top">
+  <div class="page">
+    <h1>JobLoss.AI Media Kit &amp; Ally Toolkit</h1>
+    <p>Everything you need to amplify the AI Job Loss Tracker — ready-to-use copy, shareable assets, key data points, and messaging guidelines.</p>
+  </div>
+</section>
+
+<main>
+
+<!-- ═══ TOC ═══ -->
+<div class="toc-wrap">
+  <nav class="toc" aria-label="Page sections">
+    <span class="toc-label">Jump to</span>
+    <ul class="toc-list">
+      <li><a href="#about">About</a></li>
+      <li><a href="#campaign">Campaign</a></li>
+      <li><a href="#ceo">CEO Statement</a></li>
+      <li><a href="#toolkit">Ally Toolkit</a></li>
+      <li><a href="#assets">Shareable Assets</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+</div>
+
+<!-- ═══ 1. WHAT IS JOBLOSS.AI ═══ -->
+<section class="section" id="about" style="margin-top:2rem">
+  <div class="page">
+    <p class="section-label">About the Data</p>
+    <h2 class="section-title">What is JobLoss.AI?</h2>
+    <p class="section-subtitle">A real-time public dashboard tracking AI-linked layoffs since January 1, 2025. Every report is independently sourced and editorially reviewed.</p>
+
+    <div class="card-grid card-grid-3" style="margin-bottom:1.5rem">
+      <div class="card"><p class="fact-label">Website</p><p class="fact-value"><a href="https://jobloss.ai" target="_blank" rel="noopener">jobloss.ai</a></p></div>
+      <div class="card"><p class="fact-label">Organization</p><p class="fact-value">The Alliance for Secure AI</p></div>
+      <div class="card"><p class="fact-label">Cost</p><p class="fact-value">Free · No sign-up · No paywall</p></div>
+      <div class="card"><p class="fact-label">Data Sources</p><p class="fact-value">Company statements, SEC filings, major business press</p></div>
+      <div class="card"><p class="fact-label">Coverage</p><p class="fact-value">January 1, 2025 — present · Updated daily</p></div>
+      <div class="card"><p class="fact-label">Social</p><p class="fact-value"><a href="https://twitter.com/secureainow" target="_blank" rel="noopener">@secureainow</a></p></div>
+    </div>
+
+    <div class="card-grid card-grid-2col" style="margin-bottom:1.5rem">
+      <div class="card"><h3>The Data Gap</h3><p>AI is eliminating jobs at scale but no one was tracking it. Now someone is.</p></div>
+      <div class="card"><h3>Accountability</h3><p>Silicon Valley CEOs say AI creates jobs. The data tells a different story.</p></div>
+      <div class="card"><h3>Know Before It's Too Late</h3><p>AI layoffs are hitting tech, finance, law, media, customer service. The question isn't if. It's when.</p></div>
+      <div class="card"><h3>Bipartisan Concern</h3><p>This isn't left or right. AI affects workers in every state, every industry. The data doesn't pick sides.</p></div>
+    </div>
+
+    <div class="methodology-grid">
+      <div class="method-col">
+        <p class="attr-col-label">What we count</p>
+        <div class="method-block include">
+          <p class="method-label include">Included</p>
+          <p>First-time layoffs where AI was a material factor — either <strong>explicitly cited by the company</strong>, or identified by credible reporting as a primary driver.</p>
+        </div>
+        <div class="method-block exclude">
+          <p class="method-label exclude">Excluded</p>
+          <p>Restated totals, duplicate announcements, and layoffs attributed solely to non-AI factors such as macroeconomic conditions or organizational restructuring.</p>
+        </div>
+      </div>
+      <div>
+        <p class="attr-col-label">How we classify AI involvement</p>
+        <div class="attr-block">
+          <span class="attr-pill explicit">Explicit</span>
+          <p>The company <strong>publicly cited AI</strong> in an official statement, SEC filing, or on-the-record comment.</p>
+        </div>
+        <div class="attr-block">
+          <span class="attr-pill blamed">Blamed</span>
+          <p>A credible outlet (AP, Reuters, major business press) <strong>identified AI as a primary driver</strong> — even if the company didn't say so directly.</p>
+        </div>
+        <div class="attr-block">
+          <span class="attr-pill mixed">Mixed</span>
+          <p>AI is cited <strong>alongside other factors</strong> — restructuring, market conditions — as a partial but not sole driver.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout-correction">
+      <p><strong>Spotted an error?</strong> Email <a href="mailto:press@secureainow.org">press@secureainow.org</a> with documentation. We review all corrections and update the dashboard within 24 hours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2. CAMPAIGN SCOPE ═══ -->
+<section class="section-dark" id="campaign">
+  <div class="page">
+    <p class="section-label on-dark">Campaign Scope</p>
+    <h2 class="campaign-headline">A <span class="accent">six-figure</span> campaign to make AI job loss impossible to ignore.</h2>
+    <hr class="dark-rule" />
+    <div class="campaign-cols">
+      <div>
+        <p class="campaign-col-label">Cable Networks</p>
+        <div class="chips">
+          <span class="chip national">Fox News</span>
+          <span class="chip national">MSNBC</span>
+          <span class="chip national">CNN</span>
+          <span class="chip national">Newsmax</span>
+          <span class="chip">Local TX</span>
+          <span class="chip">Local NJ</span>
+          <span class="chip">Local OH</span>
+          <span class="chip">Local LA</span>
+          <span class="chip">Local CA</span>
+          <span class="chip">Local NY</span>
+          <span class="chip">Local NC</span>
+          <span class="chip">Local SD</span>
+        </div>
+      </div>
+      <div>
+        <p class="campaign-col-label">Distribution</p>
+        <ul class="dist-list">
+          <li>Digital ads <span>— paid social &amp; display</span></li>
+          <li>Texting campaign <span>— direct outreach</span></li>
+          <li>Mobile billboards <span>— street-level</span></li>
+          <li>National cable TV <span>— :30 and :60 spots</span></li>
+        </ul>
+      </div>
+      <div>
+        <p class="campaign-col-label">Cities &amp; Targeted States</p>
+        <div class="state-tags">
+          <span class="state-tag highlight">Washington, DC</span>
+          <span class="state-tag highlight">New York City</span>
+          <span class="state-tag highlight">San Francisco</span>
+          <span class="state-tag">Texas</span>
+          <span class="state-tag">New Jersey</span>
+          <span class="state-tag">Ohio</span>
+          <span class="state-tag">Louisiana</span>
+          <span class="state-tag">South Dakota</span>
+          <span class="state-tag">California</span>
+          <span class="state-tag">New York</span>
+          <span class="state-tag">North Carolina</span>
+        </div>
+      </div>
+    </div>
+    <p class="campaign-footer-note">States where critical AI safety legislation is active or under consideration</p>
+  </div>
+</section>
+
+<div class="page"><hr class="section-divider"></div>
+
+<!-- ═══ 3. CEO STATEMENT ═══ -->
+<section class="section-dark" id="ceo" style="margin-top:1.5rem">
+  <div class="ceo-glow" aria-hidden="true"></div>
+  <div class="page">
+    <div class="ceo-accent-rule"></div>
+    <span class="ceo-quote-mark" aria-hidden="true">"</span>
+    <p class="ceo-quote-text">
+      Politicians are not thinking as seriously as they should about how AI will <span class="key">whittle away at our country's labor force.</span> Jobs, both blue and white collar, are being replaced by AI right before our eyes.
+    </p>
+    <p class="ceo-attr-name">Brendan Steinhauser</p>
+    <p class="ceo-attr-title">CEO, The Alliance for Secure AI</p>
+  </div>
+</section>
+
+<!-- ═══ 5. ALLY TOOLKIT ═══ -->
+<section class="section" id="toolkit">
+  <div class="page">
+    <p class="section-label">For Allies</p>
+    <h2 class="section-title">Ally Toolkit</h2>
+    <p class="section-subtitle">Talking points, messaging guidance, and platform-ready copy for amplifying the tracker.</p>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="margin-bottom:0.65rem">Talking Points</h3>
+      <ul class="data-list">
+        <li>Lead with the data, not the organization</li>
+        <li>Make it personal without fearmongering — <em>"is yours on the list?"</em> not <em>"you're going to lose your job"</em></li>
+        <li>Acknowledge the methodology is transparent — invite skeptics to check it</li>
+      </ul>
+    </div>
+
+    <div class="dd-grid" style="margin-bottom:1.5rem">
+      <div class="dd-col do card">
+        <h3>Do</h3>
+        <ul>
+          <li>Link to jobloss.ai</li>
+          <li>Cite specific numbers from the dashboard</li>
+          <li>Use the name "AI Job Loss Tracker"</li>
+          <li>Mention it's free and open</li>
+          <li>Tag @secureainow</li>
+          <li>Use your own voice and style</li>
+        </ul>
+      </div>
+      <div class="dd-col dont card">
+        <h3>Don't</h3>
+        <ul>
+          <li>Call it "anti-AI"</li>
+          <li>Imply there's a paywall</li>
+          <li>Claim the data as yours</li>
+          <li>Round up statistics</li>
+          <li>Dismiss methodology questions</li>
+          <li>Post once and forget — share updates</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-bottom:0.4rem">Ready-to-Post Copy</p>
+    <h3 style="font-size:1.05rem;font-weight:900;color:var(--seaweed);margin:0 0 0.8rem;letter-spacing:-0.01em">Copy &amp; paste for any platform</h3>
+
+    <div class="copy-all-bar">
+      <p>Pre-written posts sized for every major platform. Tap "Copy" and paste directly.</p>
+      <button class="copy-all-btn" aria-label="Copy all posts from current tab">Copy All</button>
+    </div>
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="x">X (Twitter)</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="ig">Instagram / Facebook</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="li">LinkedIn</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="email">Email / Newsletter</button>
+    </div>
+
+    <div class="tab-panel active" id="panel-x" role="tabpanel">
+      <div class="copy-block">
+        <p class="copy-text">61,000+ corporate jobs have been eliminated by AI since January 2025. No one was tracking it. Now someone is.
+
+jobloss.ai</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+      <div class="copy-block">
+        <p class="copy-text">Silicon Valley CEOs say AI creates jobs.
+
+The data says otherwise.
+
+jobloss.ai tracks every AI-driven layoff in corporate America. Free, open, sourced.</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+      <div class="copy-block">
+        <p class="copy-text">AI isn't just replacing tech workers. It's hitting finance. Law. Media. Customer service.
+
+See which industries are losing the most jobs: jobloss.ai</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+      <div class="copy-block">
+        <p class="copy-text">Worth bookmarking: jobloss.ai tracks AI-driven job losses across corporate America. Searchable by company and industry. Free. No sign-up.
+
+Built by @secureainow.</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-ig" role="tabpanel">
+      <div class="copy-block">
+        <p class="copy-text">Did you know that over 61,000 corporate jobs have been displaced by AI since January 2025?
+
+That's not a prediction. That's the actual number, tracked and sourced from company statements, SEC filings, and major business press.
+
+The Alliance for Secure AI built a free, public dashboard to track every AI-driven layoff in corporate America. You can search by company, industry, and role.
+
+No sign-up. No paywall. Just the data.
+
+See the full picture at jobloss.ai
+
+#AI #JobLoss #AILayoffs #FutureOfWork</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+      <div class="copy-block">
+        <p class="copy-text">If you care about American workers, bookmark this:
+
+jobloss.ai
+
+It's the first dashboard tracking every corporate job cut driven by AI. Real data. Real companies. Real people affected.
+
+Share it with someone who needs to see this.
+
+Built by @secureainow
+
+#HoldThemAccountable #AIJobs #WorkersRights</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-li" role="tabpanel">
+      <div class="copy-block">
+        <p class="copy-text">There's a lot of speculation about AI's impact on the workforce. But very little systematic tracking of what's actually happening.
+
+The Alliance for Secure AI has been changing that since January 2025. Their AI Job Loss Tracker (jobloss.ai) catalogs every corporate job cut where AI was cited as a material factor — sourced from company statements, SEC filings, and major business press.
+
+As of this month, the tracker has documented over 61,000 displaced positions across tech, finance, law, media, and customer service.
+
+The methodology is transparent, the data is free, and the dashboard is searchable.
+
+jobloss.ai</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="panel-email" role="tabpanel">
+      <div class="copy-block">
+        <p style="font-size:0.68rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.35rem">Short (~50 words)</p>
+        <p class="copy-text">Over 61,000 corporate jobs have been displaced by AI since January 2025. The Alliance for Secure AI built a free, public dashboard to track every one. Visit jobloss.ai to see the data — searchable by company, industry, and role. No sign-up required.</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+      <div class="copy-block">
+        <p style="font-size:0.68rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.35rem">Medium (~100 words)</p>
+        <p class="copy-text">AI is quietly eliminating corporate jobs across every major industry — tech, finance, law, media, and customer service. But until recently, no one was tracking the full picture.
+
+The Alliance for Secure AI built the AI Job Loss Tracker at jobloss.ai to change that. The dashboard tracks every corporate layoff where AI was a material factor, sourced from company statements, SEC filings, and credible business press. Over 61,000 positions documented so far.
+
+The data is free, open, and searchable. Visit jobloss.ai to see which companies, industries, and roles are being hit hardest.</p>
+        <button class="copy-btn"><svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="page"><hr class="section-divider"></div>
+
+<!-- ═══ 6. SHAREABLE ASSETS ═══ -->
+<section class="section" id="assets">
+  <div class="page">
+    <p class="section-label">Assets</p>
+    <h2 class="section-title">Shareable Assets</h2>
+    <p class="section-subtitle">Download-ready videos, graphics, and brand files. Contact <a href="mailto:press@secureainow.org" style="color:var(--green);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(61,107,53,0.3)">press@secureainow.org</a> for full packages.</p>
+
+    <div class="card-grid card-grid-3" style="margin-bottom:1.5rem">
+      <div class="asset-card">
+        <span class="asset-type">Video</span>
+        <h4>CEO Video — Horizontal</h4>
+        <p>MP4 · 1920×1080</p>
+        <a href="mailto:press@secureainow.org" class="asset-btn" aria-label="Request CEO Video Horizontal (MP4 1920×1080) via email">Download</a>
+      </div>
+      <div class="asset-card">
+        <span class="asset-type">Video</span>
+        <h4>CEO Video — Vertical</h4>
+        <p>MP4 · 1080×1920</p>
+        <a href="mailto:press@secureainow.org" class="asset-btn" aria-label="Request CEO Video Vertical (MP4 1080×1920) via email">Download</a>
+      </div>
+      <div class="asset-card">
+        <span class="asset-type">Graphics</span>
+        <h4>Static Graphics Pack</h4>
+        <p>Jobloss set · People set · Built set</p>
+        <a href="mailto:press@secureainow.org" class="asset-btn" aria-label="Request Static Graphics Pack via email">Download</a>
+      </div>
+      <div class="asset-card">
+        <span class="asset-type">Brand</span>
+        <h4>ASAI Logo</h4>
+        <p>PNG · Transparent background</p>
+        <a href="mailto:press@secureainow.org" class="asset-btn" aria-label="Request ASAI Logo PNG via email">Download</a>
+      </div>
+      <div class="asset-card">
+        <span class="asset-type">Press</span>
+        <h4>Fact Sheet</h4>
+        <p>PDF · 1-page · Key stats, methodology, contact</p>
+        <a href="mailto:press@secureainow.org" class="asset-btn" aria-label="Request AI Job Loss Tracker Fact Sheet PDF via email" style="opacity:0.6;cursor:default" tabindex="-1">Coming Soon</a>
+      </div>
+      <div class="asset-card" style="grid-column:span 2">
+        <span class="asset-type">Brand</span>
+        <h4>Brand Colors</h4>
+        <div class="swatch-row">
+          <div class="swatch"><span class="swatch-dot" style="background:#192d17"></span> #192D17</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#3d6b35"></span> #3D6B35</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#e4991b"></span> #E4991B</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#f3f7f1;border:1px solid #d4ddd0"></span> #F3F7F1</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-bottom:0.4rem">Social Graphics</p>
+    <p style="font-size:0.84rem;color:var(--text-mid);margin:0 0 1rem">1200×628 cards sized for Twitter/X, LinkedIn, and Facebook. Download and share directly.</p>
+    <div class="card-grid card-grid-2col" style="gap:1rem">
+      <div class="press-asset">
+        <div class="press-card-outer">
+          <div class="press-card-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>1200 × 628</span>
+          </div>
+        </div>
+        <div class="press-asset-meta">
+          <span class="asset-type">Social</span><h4>Graphic 1</h4>
+          <p>1200×628 · Twitter/X · LinkedIn</p>
+          <a href="/press-cards/mediakit-explainer.html" download class="asset-btn" aria-label="Download Social Graphic 1 (1200×628)">↓ Download</a>
+          <a href="/press-cards/mediakit-explainer.html" target="_blank" rel="noopener" class="view-btn" aria-label="View Social Graphic 1 full size">View ↗</a>
+        </div>
+      </div>
+      <div class="press-asset">
+        <div class="press-card-outer">
+          <div class="press-card-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>1200 × 628</span>
+          </div>
+        </div>
+        <div class="press-asset-meta">
+          <span class="asset-type">Social</span><h4>Graphic 2</h4>
+          <p>1200×628 · Twitter/X · LinkedIn</p>
+          <a href="/press-cards/mediakit-ceo-quote.html" download class="asset-btn" aria-label="Download Social Graphic 2 (1200×628)">↓ Download</a>
+          <a href="/press-cards/mediakit-ceo-quote.html" target="_blank" rel="noopener" class="view-btn" aria-label="View Social Graphic 2 full size">View ↗</a>
+        </div>
+      </div>
+      <div class="press-asset">
+        <div class="press-card-outer">
+          <div class="press-card-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>1200 × 628</span>
+          </div>
+        </div>
+        <div class="press-asset-meta">
+          <span class="asset-type">Social</span><h4>Graphic 3</h4>
+          <p>1200×628 · Twitter/X · LinkedIn</p>
+          <a href="/press-cards/mediakit-campaign-scope.html" download class="asset-btn" aria-label="Download Social Graphic 3 (1200×628)">↓ Download</a>
+          <a href="/press-cards/mediakit-campaign-scope.html" target="_blank" rel="noopener" class="view-btn" aria-label="View Social Graphic 3 full size">View ↗</a>
+        </div>
+      </div>
+      <div class="press-asset">
+        <div class="press-card-outer">
+          <div class="press-card-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>1200 × 628</span>
+          </div>
+        </div>
+        <div class="press-asset-meta">
+          <span class="asset-type">Social</span><h4>Graphic 4</h4>
+          <p>1200×628 · Twitter/X · LinkedIn</p>
+          <a href="/press-cards/mediakit-by-the-numbers.html" download class="asset-btn" aria-label="Download Social Graphic 4 (1200×628)">↓ Download</a>
+          <a href="/press-cards/mediakit-by-the-numbers.html" target="_blank" rel="noopener" class="view-btn" aria-label="View Social Graphic 4 full size">View ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="page"><hr class="section-divider"></div>
+
+<!-- ═══ 7. CONTACT ═══ -->
+<section class="section" id="contact">
+  <div class="page">
+    <p class="section-label">Contact</p>
+    <h2 class="section-title">Press Inquiries</h2>
+    <p class="section-subtitle">For media inquiries, interview requests, and spokesperson coordination.</p>
+    <div class="contact-card">
+      <h4>Press Office</h4>
+      <p class="contact-role">Media inquiries · Spokesperson requests · Asset licensing</p>
+      <a href="mailto:press@secureainow.org" class="contact-email">press@secureainow.org</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-logo logo-mask"
+         style="--mask-img:url(/assets/the-alliance-logo-white-1600.png)"
+         role="img" aria-label="The Alliance for Secure AI"></div>
+    <p>A public-interest project by <a href="https://secureainow.org" target="_blank" rel="noopener">The Alliance for Secure AI</a>. Data sourced from AP, Reuters, CNBC, and other major outlets. <a href="/privacy.html">Privacy Policy</a>.</p>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="Back to top">
+  <svg viewBox="0 0 16 16" fill="none"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+/* TABS */
+document.querySelectorAll(".tab-btn").forEach(function(btn) {
+  btn.addEventListener("click", function() {
+    var tab = btn.dataset.tab;
+    document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
+    document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("active"); });
+    btn.classList.add("active"); btn.setAttribute("aria-selected","true");
+    document.getElementById("panel-" + tab).classList.add("active");
+  });
+});
+
+/* COPY */
+document.querySelectorAll(".copy-btn").forEach(function(btn) {
+  btn.addEventListener("click", async function() {
+    var block = btn.closest(".copy-block");
+    var text = block.querySelector(".copy-text").textContent.trim();
+    btn.classList.add("copying");
+    btn.innerHTML = '... Copying';
+    try { await navigator.clipboard.writeText(text); }
+    catch(e) {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    }
+    btn.classList.remove("copying");
+    btn.classList.add("copied");
+    btn.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied';
+    setTimeout(function() {
+      btn.classList.remove("copied");
+      btn.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Copy';
+    }, 2000);
+  });
+});
+
+/* COPY ALL */
+document.querySelectorAll(".copy-all-btn").forEach(function(btn) {
+  btn.addEventListener("click", async function() {
+    var panel = document.querySelector(".tab-panel.active");
+    if (!panel) return;
+    var texts = Array.from(panel.querySelectorAll(".copy-text")).map(function(el) { return el.textContent.trim(); });
+    var combined = texts.join("\n\n---\n\n");
+    btn.classList.add("copying"); btn.textContent = "... Copying";
+    try { await navigator.clipboard.writeText(combined); }
+    catch(e) {
+      var ta = document.createElement("textarea");
+      ta.value = combined; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    }
+    btn.classList.remove("copying"); btn.classList.add("copied");
+    btn.textContent = "✓ All Copied";
+    setTimeout(function() { btn.classList.remove("copied"); btn.textContent = "Copy All"; }, 2000);
+  });
+});
+
+/* PRESS CARD SCALING */
+function scaleCards() {
+  document.querySelectorAll('.press-card-outer').forEach(function(outer) {
+    var iframe = outer.querySelector('iframe');
+    if (!iframe) return;
+    iframe.style.transform = 'scale(' + (outer.offsetWidth / 1200) + ')';
+  });
+}
+var cardObserver = new ResizeObserver(scaleCards);
+document.querySelectorAll('.press-card-outer').forEach(function(el) { cardObserver.observe(el); });
+scaleCards();
+
+/* SCROLL SPY */
+(function() {
+  var sections = ['about','campaign','ceo','toolkit','assets','contact'].map(function(id) {
+    return document.getElementById(id);
+  }).filter(Boolean);
+  var links = document.querySelectorAll('.toc-list a');
+  var tocWrap = document.querySelector('.toc-wrap');
+  var tocH = tocWrap ? tocWrap.offsetHeight : 48;
+  function onScroll() {
+    var scrollY = window.scrollY + tocH + 24;
+    var current = sections[0];
+    sections.forEach(function(sec) { if (sec.offsetTop <= scrollY) current = sec; });
+    links.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current.id);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+/* BACK TO TOP */
+var backBtn = document.getElementById("backTop");
+var ticking = false;
+window.addEventListener("scroll", function() {
+  if (!ticking) {
+    requestAnimationFrame(function() { backBtn.classList.toggle("visible", window.scrollY > 500); ticking = false; });
+    ticking = true;
+  }
+});
+backBtn.addEventListener("click", function() { window.scrollTo({ top: 0, behavior: "smooth" }); });
+</script>
+</body>
+</html>

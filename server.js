@@ -370,6 +370,10 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
+app.get("/media-kit", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/media-kit.html"));
+});
+
 app.get("/admin", (req, res) => {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
