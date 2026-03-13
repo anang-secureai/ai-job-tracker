@@ -370,7 +370,9 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
+// TODO: remove X-Robots-Tag before public launch
 app.get("/media-kit", (req, res) => {
+  res.setHeader("X-Robots-Tag", "noindex, nofollow");
   res.sendFile(path.join(__dirname, "public/media-kit.html"));
 });
 
